@@ -24,11 +24,10 @@ SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${BIN_DIR}" )
 SET( CMAKE_DEBUG_POSTFIX "_Debug" )
 SET( CMAKE_RELEASE_POSTFIX "_Release" )
 
-set( CMAKE_C_COMPILER "clang" )
-set( CMAKE_CXX_COMPILER "clang++" )
-
 IF( UNIX )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+    SET( CMAKE_C_COMPILER "clang" )
+    SET( CMAKE_CXX_COMPILER "clang++" )
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 ENDIF()
 
 SET( LIB_DIR ${CMAKE_HOME_DIRECTORY}/lib )
@@ -51,7 +50,7 @@ ENDFUNCTION( ADD_SOURCE )
 #	Source Files
 #
 #->Main
-ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES main.cpp MainWindow.ui MainWindow.h MainWindow.cpp TrackItemDelegate.h TrackItemDelegate.cpp TimelineWidget.h TimelineWidget.cpp )
+ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES Main.cpp MainWindow.ui MainWindow.h MainWindow.cpp TrackItemDelegate.h TrackItemDelegate.cpp TimelineWidget.h TimelineWidget.cpp )
 
 ADD_EXECUTABLE( ${PROJECT_NAME} WIN32 ${SRC_FILES} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets )
