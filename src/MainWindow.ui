@@ -25,6 +25,9 @@
      <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
       <item>
        <widget class="TrackListView" name="listView">
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
         <property name="verticalScrollMode">
          <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
