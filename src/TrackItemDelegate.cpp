@@ -39,5 +39,5 @@ void TrackItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
 QSize TrackItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    return QSize(1000, 100);
+    return QSize(3000, 100);
 }

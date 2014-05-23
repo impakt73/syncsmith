@@ -13,8 +13,15 @@ MainWindow::MainWindow(QWidget *parent) :
     mNumbers << "One" << "Two" << "Three" << "Four" << "Five" << "Six" << "Seven" << "Eight" << "Nine" << "Ten" << "Eleven" << "Twelve";
     mModel = new QStringListModel(mNumbers);
 
+    TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
     QListView* listView = this->findChild<QListView*>("listView");
+    QListView* listView2 = this->findChild<QListView*>("listView_2");
     listView->setModel(mModel);
+    listView2->setModel(mModel);
+    listView2->setItemDelegate(listView->itemDelegate());
+
+    connect(listView->verticalScrollBar(), &QScrollBar::valueChanged, listView2->verticalScrollBar(), &QScrollBar::setValue);
+    connect(listView->horizontalScrollBar(), &QScrollBar::valueChanged, timeline, &TimelineWidget::updateOffset);
 }
 
 MainWindow::~MainWindow()

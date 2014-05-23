@@ -14,10 +14,4 @@ public:
 
 private:
     TrackItemDelegate mItemDelegate;
-    TimelineWidget mTimelineWidget;
-    QListView mTrackHeadersListView;
-
-    void scrollContentsBy(int dx, int dy);
-    void resizeEvent(QResizeEvent *e);
-    void setModel(QAbstractItemModel *model);
 };
