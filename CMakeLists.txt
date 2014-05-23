@@ -50,7 +50,17 @@ ENDFUNCTION( ADD_SOURCE )
 #	Source Files
 #
 #->Main
-ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES Main.cpp MainWindow.ui MainWindow.h MainWindow.cpp TrackItemDelegate.h TrackItemDelegate.cpp TimelineWidget.h TimelineWidget.cpp )
+ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
+    Main.cpp
+    MainWindow.ui
+    MainWindow.h
+    MainWindow.cpp
+    TrackItemDelegate.h
+    TrackItemDelegate.cpp
+    TimelineWidget.h
+    TimelineWidget.cpp
+    TrackListView.h
+    TrackListView.cpp )
 
 ADD_EXECUTABLE( ${PROJECT_NAME} WIN32 ${SRC_FILES} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets )

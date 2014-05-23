@@ -1,6 +1,8 @@
 #include <MainWindow.h>
 #include "ui_MainWindow.h"
 
+#include <QScrollBar>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     mTrackItemDelegate(this),
@@ -13,8 +15,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QListView* listView = this->findChild<QListView*>("listView");
     listView->setModel(mModel);
-    listView->setItemDelegate(&mTrackItemDelegate);
-
 }
 
 MainWindow::~MainWindow()

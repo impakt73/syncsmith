@@ -3,6 +3,7 @@
 
 TimelineWidget::TimelineWidget(QWidget *parent)
     : QWidget(parent)
+    , mOffset(0)
 {
 
 }
@@ -10,6 +11,12 @@ TimelineWidget::TimelineWidget(QWidget *parent)
 TimelineWidget::~TimelineWidget()
 {
 
+}
+
+void TimelineWidget::updateOffset(int offset)
+{
+    mOffset = offset;
+    repaint();
 }
 
 void TimelineWidget::paintEvent(QPaintEvent *event)
@@ -29,7 +36,7 @@ void TimelineWidget::paintEvent(QPaintEvent *event)
     painter.setFont(font);
     for(int x = 1; x < rect.width()-1; x += 8)
     {
-        int index = x / 8;
+        int index = (x / 8) + (mOffset / 8);
         if(index % 10 == 0)
         {
             painter.drawLine(x, 0, x, rectHeight);
