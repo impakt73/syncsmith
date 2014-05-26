@@ -1,5 +1,4 @@
 #include <TrackListView.h>
-#include <QtGui>
 
 
 TrackListView::TrackListView(QWidget *parent)

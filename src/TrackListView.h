@@ -2,7 +2,6 @@
 
 #include <QListView>
 #include <TrackItemDelegate.h>
-#include <TimelineWidget.h>
 
 class TrackListView : public QListView
 {

@@ -8,7 +8,8 @@ SET( CMAKE_INCLUDE_CURRENT_DIR ON )
 SET( CMAKE_AUTOMOC ON )
 SET( CMAKE_AUTOUIC ON )
 
-FIND_PACKAGE( Qt5Widgets )
+FIND_PACKAGE( Qt5Widgets REQUIRED )
+FIND_PACKAGE( Qt5Multimedia REQUIRED )
 
 #
 #	SyncSmith
@@ -57,10 +58,23 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     MainWindow.cpp
     TrackItemDelegate.h
     TrackItemDelegate.cpp
+    TrackHeaderItemDelegate.h
+    TrackHeaderItemDelegate.cpp
     TimelineWidget.h
     TimelineWidget.cpp
     TrackListView.h
-    TrackListView.cpp )
+    TrackListView.cpp
+    TrackHeaderListView.h
+    TrackHeaderListView.cpp
+    Track.h
+    TrackType.h
+    TrackListModel.h
+    TrackListModel.cpp
+    FloatTrack.h
+    FloatTrack.cpp
+    TrackKey.h
+    SyncSmithDevelopmentClient.h
+    SyncSmithDevelopmentClient.cpp )
 
 ADD_EXECUTABLE( ${PROJECT_NAME} WIN32 ${SRC_FILES} )
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets Qt5::Multimedia )

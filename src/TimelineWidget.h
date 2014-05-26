@@ -14,8 +14,10 @@ public:
 
 public slots:
     void updateOffset(int offset);
+    void setPlaybackPosition(double inSeconds);
 
 private:
     void paintEvent(QPaintEvent * event);
     int mOffset;
+    double mPlaybackPositionInSeconds;
 };

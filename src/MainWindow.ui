@@ -46,7 +46,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListView" name="listView_2">
+       <widget class="TrackHeaderListView" name="listView_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -113,6 +113,12 @@
       </item>
       <item>
        <widget class="TrackListView" name="listView">
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOn</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOn</enum>
+        </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustIgnored</enum>
         </property>
@@ -156,7 +162,14 @@
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
+   <widget class="QMenu" name="menu_Audio">
+    <property name="title">
+     <string>&amp;Audio</string>
+    </property>
+    <addaction name="action_Load_File"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Audio"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_New_Project">
@@ -184,6 +197,11 @@
     <string>E&amp;xit</string>
    </property>
   </action>
+  <action name="action_Load_File">
+   <property name="text">
+    <string>&amp;Load File</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -196,6 +214,11 @@
    <extends>QWidget</extends>
    <header>TimelineWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TrackHeaderListView</class>
+   <extends>QListView</extends>
+   <header>TrackHeaderListView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
