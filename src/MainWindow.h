@@ -6,6 +6,8 @@
 #include <TrackListModel.h>
 #include <QtMultimedia>
 
+#include <SyncServer.h>
+
 namespace Ui {
 class MainWindow;
 }
@@ -26,6 +28,8 @@ private slots:
     void audio_file_loaded();
     void audio_file_error(QAudioDecoder::Error error);
 
+    void on_action_Send_Message_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -38,4 +42,6 @@ private:
     std::vector<unsigned short> mScaledAudioBuffer;
     unsigned short mMinSample;
     unsigned short mMaxSample;
+
+    SyncServer mSyncServer;
 };

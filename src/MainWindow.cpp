@@ -24,10 +24,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(listView->verticalScrollBar(), &QScrollBar::valueChanged, listView2->verticalScrollBar(), &QScrollBar::setValue);
     connect(listView->horizontalScrollBar(), &QScrollBar::valueChanged, timeline, &TimelineWidget::updateOffset);
+
+    mSyncServer.Start();
 }
 
 MainWindow::~MainWindow()
 {
+    mSyncServer.Stop();
+
     delete mModel;
 
     delete ui;
@@ -115,4 +119,9 @@ void MainWindow::audio_file_loaded()
 void MainWindow::audio_file_error(QAudioDecoder::Error error)
 {
     qDebug() << "Loading Failed! Error: " << mDecoder.errorString();
+}
+
+void MainWindow::on_action_Send_Message_triggered()
+{
+    mSyncServer.BroadcastMessage("Hello World!");
 }

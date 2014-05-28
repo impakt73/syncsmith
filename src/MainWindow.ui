@@ -168,8 +168,15 @@
     </property>
     <addaction name="action_Load_File"/>
    </widget>
+   <widget class="QMenu" name="menu_Test">
+    <property name="title">
+     <string>&amp;Test</string>
+    </property>
+    <addaction name="action_Send_Message"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Audio"/>
+   <addaction name="menu_Test"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_New_Project">
@@ -200,6 +207,11 @@
   <action name="action_Load_File">
    <property name="text">
     <string>&amp;Load File</string>
+   </property>
+  </action>
+  <action name="action_Send_Message">
+   <property name="text">
+    <string>&amp;Send Message</string>
    </property>
   </action>
  </widget>

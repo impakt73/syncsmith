@@ -10,6 +10,7 @@ SET( CMAKE_AUTOUIC ON )
 
 FIND_PACKAGE( Qt5Widgets REQUIRED )
 FIND_PACKAGE( Qt5Multimedia REQUIRED )
+FIND_PACKAGE( Qt5Network REQUIRED )
 
 #
 #	SyncSmith
@@ -73,8 +74,12 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     FloatTrack.h
     FloatTrack.cpp
     TrackKey.h
-    SyncSmithDevelopmentClient.h
-    SyncSmithDevelopmentClient.cpp )
+    SyncContext.h
+    SyncContext.cpp
+    SyncServer.h
+    SyncServer.cpp
+    SyncClient.h
+    SyncClient.cpp )
 
 ADD_EXECUTABLE( ${PROJECT_NAME} WIN32 ${SRC_FILES} )
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets Qt5::Multimedia )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets Qt5::Multimedia Qt5::Network )
