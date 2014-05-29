@@ -20,6 +20,11 @@ bool SyncServer::Start(int inPort)
 
 void SyncServer::Stop()
 {
+    if(mTimer.isActive())
+    {
+        mTimer.stop();
+    }
+
     if(mServer.isListening())
     {
         mServer.close();
@@ -46,6 +51,22 @@ void SyncServer::BroadcastMessage(const QString& inMessage)
     }
 }
 
+void SyncServer::OnToggleAction()
+{
+    if(mTimer.isActive())
+    {
+        mTimer.stop();
+    }
+    else
+    {
+        mStartTime = QDateTime::currentMSecsSinceEpoch();
+        mContext.SetPosition(static_cast<double>(0));
+        emit PositionChanged(0);
+
+        mTimer.start();
+    }
+}
+
 void SyncServer::OnNewConnection()
 {
     QTcpSocket* newClient = mServer.nextPendingConnection();
@@ -69,4 +90,12 @@ void SyncServer::OnClientDisconnected()
 
     delete socketIterator->second;
     mClients.erase(socketIterator);
+}
+
+void SyncServer::OnTimerTicked()
+{
+    double currentTime = static_cast<double>(QDateTime::currentMSecsSinceEpoch() - mStartTime);
+    mContext.SetPosition(currentTime);
+
+    emit PositionChanged(currentTime);
 }

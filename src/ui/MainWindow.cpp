@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     mTrackItemDelegate(this),
     mDecoder(this),
+    mSyncServer(this),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -25,11 +26,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(listView->verticalScrollBar(), &QScrollBar::valueChanged, listView2->verticalScrollBar(), &QScrollBar::setValue);
     connect(listView->horizontalScrollBar(), &QScrollBar::valueChanged, timeline, &TimelineWidget::updateOffset);
 
+    connect(&mSyncServer, &SyncServer::PositionChanged, this, &MainWindow::on_position_changed);
+
     mSyncServer.Start();
+
+    grabKeyboard();
 }
 
 MainWindow::~MainWindow()
 {
+    releaseKeyboard();
+
     mSyncServer.Stop();
 
     delete mModel;
@@ -124,4 +131,25 @@ void MainWindow::audio_file_error(QAudioDecoder::Error error)
 void MainWindow::on_action_Send_Message_triggered()
 {
     mSyncServer.BroadcastMessage("Hello World!");
+}
+
+void MainWindow::on_position_changed(double inNewPosition)
+{
+    TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
+    QListView* listView = this->findChild<QListView*>("listView");
+    timeline->updateOffset((int)inNewPosition);
+    listView->horizontalScrollBar()->setValue((int)inNewPosition);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* keycode)
+{
+    if(keycode->key() == Qt::Key_Space)
+    {
+        keycode->accept();
+        mSyncServer.OnToggleAction();
+    }
+    else
+    {
+        keycode->ignore();
+    }
 }

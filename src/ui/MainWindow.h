@@ -30,7 +30,10 @@ private slots:
 
     void on_action_Send_Message_triggered();
 
+    void on_position_changed(double inNewPosition);
+
 private:
+    void keyPressEvent(QKeyEvent* keycode);
     Ui::MainWindow *ui;
 
     QStringList mNumbers;
