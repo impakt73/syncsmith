@@ -7,11 +7,18 @@
 class SyncContext
 {
 public:
-    SyncContext(void) {}
+    SyncContext(void) : mPosition(0.0) {}
     ~SyncContext(void) {}
 
-    const FloatTrack* GetFloatTrack(const std::string& inTrackName);
+    template <typename T>
+    T GetValue(const std::string& inTrackName); // Will cause compilation failure if the user asks for a non-specialized type
+
+    inline void SetPosition(double inPosition) { mPosition = inPosition; }
+    inline double GetPosition(void) const { return mPosition; }
 
 private:
+    Track* GetTrack(const std::string& inTrackName);
+
     std::map<std::string, Track*> mTracks;
+    double mPosition;
 };

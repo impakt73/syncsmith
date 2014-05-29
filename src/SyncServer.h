@@ -19,6 +19,8 @@ public:
 
     void BroadcastMessage(const QString& inMessage);
 
+    inline SyncContext& GetSyncContext(void) { return mContext; }
+
 private slots:
     void OnNewConnection(void);
     void OnClientDisconnected(void);
