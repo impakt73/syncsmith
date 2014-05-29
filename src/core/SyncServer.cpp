@@ -1,4 +1,4 @@
-#include <SyncServer.h>
+#include <core/SyncServer.h>
 
 bool SyncServer::Start(int inPort)
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtNetwork>
-#include <SyncContext.h>
+#include <core/SyncContext.h>
 
 class SyncServer : public QObject
 {

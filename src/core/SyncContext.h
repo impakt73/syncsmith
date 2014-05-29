@@ -1,8 +1,8 @@
 #pragma once
 
 #include <map>
-#include <Track.h>
-#include <FloatTrack.h>
+#include <core/Track.h>
+#include <core/FloatTrack.h>
 
 class SyncContext
 {

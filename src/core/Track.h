@@ -1,6 +1,6 @@
 #pragma once
 
-#include <TrackType.h>
+#include <core/TrackType.h>
 #include <string>
 
 class Track

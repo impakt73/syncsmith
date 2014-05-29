@@ -54,32 +54,32 @@ ENDFUNCTION( ADD_SOURCE )
 #->Main
 ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     Main.cpp
-    MainWindow.ui
-    MainWindow.h
-    MainWindow.cpp
-    TrackItemDelegate.h
-    TrackItemDelegate.cpp
-    TrackHeaderItemDelegate.h
-    TrackHeaderItemDelegate.cpp
-    TimelineWidget.h
-    TimelineWidget.cpp
-    TrackListView.h
-    TrackListView.cpp
-    TrackHeaderListView.h
-    TrackHeaderListView.cpp
-    Track.h
-    TrackType.h
-    TrackListModel.h
-    TrackListModel.cpp
-    FloatTrack.h
-    FloatTrack.cpp
-    TrackKey.h
-    SyncContext.h
-    SyncContext.cpp
-    SyncServer.h
-    SyncServer.cpp
-    SyncClient.h
-    SyncClient.cpp )
+    ui/MainWindow.ui
+    ui/MainWindow.h
+    ui/MainWindow.cpp
+    ui/TrackItemDelegate.h
+    ui/TrackItemDelegate.cpp
+    ui/TrackHeaderItemDelegate.h
+    ui/TrackHeaderItemDelegate.cpp
+    ui/TimelineWidget.h
+    ui/TimelineWidget.cpp
+    ui/TrackListView.h
+    ui/TrackListView.cpp
+    ui/TrackHeaderListView.h
+    ui/TrackHeaderListView.cpp
+    ui/TrackListModel.h
+    ui/TrackListModel.cpp
+    core/Track.h
+    core/TrackType.h
+    core/FloatTrack.h
+    core/FloatTrack.cpp
+    core/TrackKey.h
+    core/SyncContext.h
+    core/SyncContext.cpp
+    core/SyncServer.h
+    core/SyncServer.cpp
+    core/SyncClient.h
+    core/SyncClient.cpp )
 
 ADD_EXECUTABLE( ${PROJECT_NAME} WIN32 ${SRC_FILES} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets Qt5::Multimedia Qt5::Network )

@@ -1,5 +1,5 @@
-#include <TrackListModel.h>
-#include <FloatTrack.h>
+#include <ui/TrackListModel.h>
+#include <core/FloatTrack.h>
 
 QVariant TrackListModel::data(const QModelIndex &index, int role) const
 {

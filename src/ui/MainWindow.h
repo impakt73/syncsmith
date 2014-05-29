@@ -2,11 +2,11 @@
 
 #include <QMainWindow>
 #include <QtGui>
-#include <TrackItemDelegate.h>
-#include <TrackListModel.h>
+#include <ui/TrackItemDelegate.h>
+#include <ui/TrackListModel.h>
 #include <QtMultimedia>
 
-#include <SyncServer.h>
+#include <core/SyncServer.h>
 
 namespace Ui {
 class MainWindow;

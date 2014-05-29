@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QListView>
-#include <TrackItemDelegate.h>
+#include <ui/TrackItemDelegate.h>
 
 class TrackListView : public QListView
 {

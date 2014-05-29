@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <Track.h>
+#include <core/Track.h>
 
 class TrackListModel : public QAbstractListModel
 {

@@ -1,4 +1,4 @@
-#include <SyncContext.h>
+#include <core/SyncContext.h>
 
 template <>
 float SyncContext::GetValue<float>(const std::string& inTrackName)

@@ -219,18 +219,18 @@
   <customwidget>
    <class>TrackListView</class>
    <extends>QListView</extends>
-   <header>TrackListView.h</header>
+   <header>ui/TrackListView.h</header>
   </customwidget>
   <customwidget>
    <class>TimelineWidget</class>
    <extends>QWidget</extends>
-   <header>TimelineWidget.h</header>
+   <header>ui/TimelineWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>TrackHeaderListView</class>
    <extends>QListView</extends>
-   <header>TrackHeaderListView.h</header>
+   <header>ui/TrackHeaderListView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

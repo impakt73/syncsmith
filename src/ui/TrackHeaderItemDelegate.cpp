@@ -1,4 +1,4 @@
-#include <TrackHeaderItemDelegate.h>
+#include <ui/TrackHeaderItemDelegate.h>
 #include <QtGui>
 
 TrackHeaderItemDelegate::TrackHeaderItemDelegate(QObject *parent)

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Track.h>
+#include <core/Track.h>
 #include <vector>
-#include <TrackKey.h>
+#include <core/TrackKey.h>
 
 class FloatTrack : public Track
 {

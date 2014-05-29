@@ -1,6 +1,6 @@
-#include <TrackItemDelegate.h>
+#include <ui/TrackItemDelegate.h>
 #include <QtGui>
-#include <TrackListModel.h>
+#include <ui/TrackListModel.h>
 
 TrackItemDelegate::TrackItemDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
