@@ -1,6 +1,7 @@
 #include <ui/TrackItemDelegate.h>
 #include <QtGui>
 #include <ui/TrackListModel.h>
+#include <ui/UIConstants.h>
 
 TrackItemDelegate::TrackItemDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
@@ -52,7 +53,7 @@ void TrackItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
             unsigned short sampleValue = (*audioSamples)[sampleIndex];
             float barLength = (float)(sampleValue - model->getMinSample()) / (float)(model->getMaxSample() - model->getMinSample());
             int barLengthInPixels = barLength * ((option.rect.height() / 2.0f) - 4);
-            painter->drawLine(option.rect.x() + sampleIndex*3, (option.rect.height()/2) - barLengthInPixels, option.rect.x() + sampleIndex*3, (option.rect.height()/2) + barLengthInPixels);
+            painter->drawLine(option.rect.x() + sampleIndex*8, (option.rect.height()/2) - barLengthInPixels, option.rect.x() + sampleIndex*8, (option.rect.height()/2) + barLengthInPixels);
         }
     }
 
@@ -62,5 +63,6 @@ void TrackItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
 QSize TrackItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    return QSize(10000, 100);
+    const TrackListModel* model = static_cast<const TrackListModel*>(index.model());
+    return QSize(model->getAudioLength() * UIConstants::SecondSizeInPixels, 100);
 }

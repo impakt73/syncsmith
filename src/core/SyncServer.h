@@ -1,10 +1,11 @@
 #pragma once
 
 #include <QtNetwork>
-#include <core/SyncContext.h>
+#include <SyncContext.h>
+#include <ISyncSmithServer.h>
 #include <QTimer>
 
-class SyncServer : public QObject
+class SyncServer : public QObject, public ISyncSmithServer
 {
     Q_OBJECT
 
@@ -22,14 +23,16 @@ public:
         mStartTime = QDateTime::currentMSecsSinceEpoch();
     }
 
-    ~SyncServer(void) {}
+    ~SyncServer(void) { Stop(); }
 
     bool Start(int inPort = 8000);
     void Stop(void);
 
     void BroadcastMessage(const QString& inMessage);
 
-    inline SyncContext& GetSyncContext(void) { return mContext; }
+    inline SyncContext* GetSyncContext(void) { return &mContext; }
+
+    inline void Release(void) { delete this; }
 
 public slots:
     void OnToggleAction(void);

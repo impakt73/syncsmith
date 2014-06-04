@@ -10,14 +10,18 @@ public:
     explicit TimelineWidget(QWidget *parent = 0);
     ~TimelineWidget();
 
-    inline int offset() const { return mOffset; }
+    inline double scrollOffset() const { return mScrollOffset; }
+    inline double length() const { return mLengthInSeconds; }
 
 public slots:
-    void updateOffset(int offset);
+    void updateScrollOffset(double inScrollOffset);
     void setPlaybackPosition(double inSeconds);
+    void setLength(double inSeconds);
 
 private:
     void paintEvent(QPaintEvent * event);
-    int mOffset;
+    double mScrollOffset; // In Seconds
     double mPlaybackPositionInSeconds;
+    double mPlaybackPositionOffset;
+    double mLengthInSeconds;
 };

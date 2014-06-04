@@ -1,12 +1,15 @@
 #include <ui/TimelineWidget.h>
 #include <QtGui>
+#include <ui/UIConstants.h>
 
 TimelineWidget::TimelineWidget(QWidget *parent)
     : QWidget(parent)
-    , mOffset(0)
+    , mScrollOffset(0.0)
     , mPlaybackPositionInSeconds(8.0)
+    , mPlaybackPositionOffset(0.0)
+    , mLengthInSeconds(0.0)
 {
-
+    //setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 TimelineWidget::~TimelineWidget()
@@ -14,15 +17,22 @@ TimelineWidget::~TimelineWidget()
 
 }
 
-void TimelineWidget::updateOffset(int offset)
+void TimelineWidget::updateScrollOffset(double inScrollOffset)
 {
-    mOffset = offset;
+    mScrollOffset = inScrollOffset;
     repaint();
 }
 
 void TimelineWidget::setPlaybackPosition(double inSeconds)
 {
     mPlaybackPositionInSeconds = inSeconds;
+    repaint();
+}
+
+void TimelineWidget::setLength(double inSeconds)
+{
+    mLengthInSeconds = inSeconds;
+    repaint();
 }
 
 void TimelineWidget::paintEvent(QPaintEvent *event)
@@ -40,26 +50,56 @@ void TimelineWidget::paintEvent(QPaintEvent *event)
 
     painter.setPen(Qt::black);
     painter.setFont(font);
-    for(int x = 1; x < rect.width()-1; x += 8)
+    static const int sTickStepInPixels = UIConstants::SecondSizeInPixels/10;
+    int xLeft = (mScrollOffset * UIConstants::SecondSizeInPixels) - 1; // Subtract 1 for anti-aliasing
+    painter.translate(-xLeft, 0.0);
+
+    for(int x = 0; x < mLengthInSeconds*UIConstants::SecondSizeInPixels; x += sTickStepInPixels)
     {
-        int index = (x / 8) + (mOffset / 8);
-        if(index % 100 == 0)
+        int index = (x / sTickStepInPixels);
+        if(index % 10 == 0)
         {
             painter.drawLine(x, 0, x, rectHeight);
 
-            QString numberText = QString("%1").arg(index / 100.0);
+            QString numberText = QString("%1").arg(index / 10.0);
             int lineoffset = (int)(fontMetrics.width(numberText)/2.0f);
             painter.drawText(x + lineoffset, rectHeight / 2, numberText);
         }
-        else if(index % 50 == 0)
+        else if(index % 5 == 0)
         {
             painter.drawLine(x, rectHeight - (lineHeight*2), x, rectHeight);
-
-            QString numberText = QString("%1").arg(index / 100.0);
-            int lineoffset = (int)(fontMetrics.width(numberText)/2.0f);
-            painter.drawText(x - lineoffset, lineoffset*2, numberText);
         }
-        else if(index % 25 == 0)
+        else
+        {
+            painter.drawLine(x, rectHeight - lineHeight, x, rectHeight);
+        }
+    }
+
+    painter.setBrush(Qt::yellow);
+
+    int xPos = (mPlaybackPositionInSeconds * UIConstants::SecondSizeInPixels);
+    int triangleHeight = (lineHeight * 1.5f);
+    QPoint trianglePoints[] =
+    {
+        { xPos, rectHeight },
+        { xPos + 5, rectHeight - triangleHeight },
+        { xPos - 5, rectHeight - triangleHeight }
+    };
+
+    painter.drawPolygon(trianglePoints, 3, Qt::WindingFill);
+/*
+    for(int x = 1; x < rect.width()-1; x += 8)
+    {
+        int index = (x / 8.0f) + (mOffset / 8.0f);
+        if(index % 10 == 0)
+        {
+            painter.drawLine(x, 0, x, rectHeight);
+
+            QString numberText = QString("%1").arg(index / 10.0);
+            int lineoffset = (int)(fontMetrics.width(numberText)/2.0f);
+            painter.drawText(x + lineoffset, rectHeight / 2, numberText);
+        }
+        else if(index % 5 == 0)
         {
             painter.drawLine(x, rectHeight - (lineHeight*2), x, rectHeight);
         }
@@ -81,4 +121,5 @@ void TimelineWidget::paintEvent(QPaintEvent *event)
     };
 
     painter.drawPolygon(trianglePoints, 3, Qt::WindingFill);
+    */
 }

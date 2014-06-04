@@ -33,7 +33,7 @@ IF( UNIX )
 ENDIF()
 
 SET( LIB_DIR ${CMAKE_HOME_DIRECTORY}/lib )
-INCLUDE_DIRECTORIES( "${CMAKE_HOME_DIRECTORY}/src" "${CMAKE_HOME_DIRECTORY}/include" )
+INCLUDE_DIRECTORIES( "${CMAKE_HOME_DIRECTORY}/src" "${CMAKE_HOME_DIRECTORY}/lib" )
 LINK_DIRECTORIES   ( "${BIN_DIR}" "${LIB_DIR}" )
 ADD_DEFINITIONS	   ( "-D_UNICODE" "-DUNICODE" "-D_CRT_SECURE_NO_WARNINGS" )
 
@@ -69,17 +69,27 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     ui/TrackHeaderListView.cpp
     ui/TrackListModel.h
     ui/TrackListModel.cpp
+    ui/UIConstants.h
     core/Track.h
     core/TrackType.h
     core/FloatTrack.h
     core/FloatTrack.cpp
     core/TrackKey.h
-    core/SyncContext.h
+    ../lib/SyncContext.h
     core/SyncContext.cpp
     core/SyncServer.h
     core/SyncServer.cpp
     core/SyncClient.h
-    core/SyncClient.cpp )
+    core/SyncClient.cpp
+    core/SyncPacket.h )
+
+ADD_SOURCE( LIB_SRC "lib" "" LIB_SRC_FILES
+    ISyncSmithServer.h
+    SyncSmith.h
+    SyncSmith.cpp
+    SyncContext.h )
 
 ADD_EXECUTABLE( ${PROJECT_NAME} WIN32 ${SRC_FILES} )
+ADD_LIBRARY( ${PROJECT_NAME}_Connector SHARED ${SRC_FILES} ${LIB_SRC_FILES} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} Qt5::Widgets Qt5::Multimedia Qt5::Network )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME}_Connector Qt5::Widgets Qt5::Multimedia Qt5::Network )

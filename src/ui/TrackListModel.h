@@ -22,9 +22,11 @@ public:
     void setAudioSamples(const std::vector<unsigned short>* inAudioSamples) { mAudioSamples = inAudioSamples; }
     void setMinSample(unsigned short inSample) { mMinSample = inSample; }
     void setMaxSample(unsigned short inSample) { mMaxSample = inSample; }
+    void setAudioLength(double inSeconds) { beginResetModel(); mAudioLengthInSeconds = inSeconds; endResetModel(); }
     unsigned short getMinSample(void) const { return mMinSample; }
     unsigned short getMaxSample(void) const { return mMaxSample; }
     const std::vector<unsigned short>* getAudioSamples(void) const { return mAudioSamples; }
+    double getAudioLength(void) const { return mAudioLengthInSeconds; }
 
     enum eTrackDataRole
     {
@@ -38,4 +40,5 @@ private:
     const std::vector<unsigned short>* mAudioSamples;
     unsigned short mMinSample;
     unsigned short mMaxSample;
+    double mAudioLengthInSeconds;
 };

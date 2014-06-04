@@ -94,8 +94,8 @@ void SyncServer::OnClientDisconnected()
 
 void SyncServer::OnTimerTicked()
 {
-    double currentTime = static_cast<double>(QDateTime::currentMSecsSinceEpoch() - mStartTime);
-    mContext.SetPosition(currentTime);
+    double currentTimeInSeconds = static_cast<double>(QDateTime::currentMSecsSinceEpoch() - mStartTime) / 1000.0;
+    mContext.SetPosition(currentTimeInSeconds);
 
-    emit PositionChanged(currentTime);
+    emit PositionChanged(currentTimeInSeconds);
 }

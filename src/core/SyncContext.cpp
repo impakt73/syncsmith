@@ -1,4 +1,6 @@
-#include <core/SyncContext.h>
+#include <SyncContext.h>
+#include <core/Track.h>
+#include <core/FloatTrack.h>
 
 template <>
 float SyncContext::GetValue<float>(const std::string& inTrackName)
@@ -12,6 +14,18 @@ float SyncContext::GetValue<float>(const std::string& inTrackName)
     {
         return 0.0f;
     }
+}
+
+template <>
+bool SyncContext::GetValue<bool>(const std::string& inTrackName)
+{
+    return false;
+}
+
+template <>
+std::string SyncContext::GetValue<std::string>(const std::string& inTrackName)
+{
+    return "Undefined";
 }
 
 Track* SyncContext::GetTrack(const std::string& inTrackName)

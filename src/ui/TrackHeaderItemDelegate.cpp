@@ -41,7 +41,15 @@ void TrackHeaderItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     painter->drawRect(option.rect.x() + 3, option.rect.y() + 3, option.rect.width() - 4, option.rect.height() - 4);
 
-    painter->drawText(QPoint(option.rect.x() + option.rect.width() / 2, option.rect.y() + option.rect.height() / 2), qvariant_cast<QString>(index.data()));
+    QFont font("Arial", 10);
+    QFontMetricsF fontMetrics(font);
+    QString text = qvariant_cast<QString>(index.data());
+    QSizeF fontSize = fontMetrics.size(0, text);
+
+    painter->setPen(Qt::black);
+    painter->setFont(font);
+
+    painter->drawText(QPoint(option.rect.x() + ( option.rect.width() / 2 - fontSize.width() / 2 ), option.rect.y() + option.rect.height() / 2), text);
     painter->restore();
 }
 

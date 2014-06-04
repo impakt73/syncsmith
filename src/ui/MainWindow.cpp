@@ -1,5 +1,6 @@
 #include <ui/MainWindow.h>
 #include "ui_MainWindow.h"
+#include <ui/UIConstants.h>
 
 #include <QScrollBar>
 
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     listView2->setModel(&mTrackModel);
 
     connect(listView->verticalScrollBar(), &QScrollBar::valueChanged, listView2->verticalScrollBar(), &QScrollBar::setValue);
-    connect(listView->horizontalScrollBar(), &QScrollBar::valueChanged, timeline, &TimelineWidget::updateOffset);
+    //connect(listView->horizontalScrollBar(), &QScrollBar::valueChanged, timeline, &TimelineWidget::updateOffset);
 
     connect(&mSyncServer, &SyncServer::PositionChanged, this, &MainWindow::on_position_changed);
 
@@ -97,14 +98,15 @@ void MainWindow::audio_file_buffer_ready()
 
 void MainWindow::audio_file_loaded()
 {
-    qDebug() << "Loading Complete! Audio Duration: " << mAudioBuffer.size() / 44100.0f;
+    double audioLengthInSeconds = mAudioBuffer.size() / 44100.0;
+    qDebug() << "Loading Complete! Audio Duration: " << audioLengthInSeconds;
 
-    mScaledAudioBuffer.reserve(mAudioBuffer.size()/8820);
+    mScaledAudioBuffer.reserve(mAudioBuffer.size()/17640);
     unsigned short maxVal = mAudioBuffer[0];
     unsigned short minVal = mAudioBuffer[0];
     for(int sampleIndex = 0; sampleIndex < mAudioBuffer.size(); ++sampleIndex)
     {
-        if(sampleIndex % 8820 == 0)
+        if(sampleIndex % 17640 == 0)
         {
             mScaledAudioBuffer.push_back(maxVal);
             maxVal = mAudioBuffer[sampleIndex];
@@ -121,6 +123,9 @@ void MainWindow::audio_file_loaded()
     mTrackModel.setAudioSamples(&mScaledAudioBuffer);
     mTrackModel.setMinSample(mMinSample);
     mTrackModel.setMaxSample(mMaxSample);
+    mTrackModel.setAudioLength(audioLengthInSeconds);
+    TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
+    timeline->setLength(audioLengthInSeconds);
 }
 
 void MainWindow::audio_file_error(QAudioDecoder::Error error)
@@ -137,8 +142,11 @@ void MainWindow::on_position_changed(double inNewPosition)
 {
     TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
     QListView* listView = this->findChild<QListView*>("listView");
-    timeline->updateOffset((int)inNewPosition);
-    listView->horizontalScrollBar()->setValue((int)inNewPosition);
+    qDebug() << "Current Time In Seconds: " << inNewPosition;
+    int pixelPos = inNewPosition * UIConstants::SecondSizeInPixels;
+    timeline->updateScrollOffset(inNewPosition);
+    //timeline->scroll(-pixelPos, 0);
+    listView->horizontalScrollBar()->setValue(pixelPos);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* keycode)
