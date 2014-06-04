@@ -3,6 +3,8 @@
 #include <QAbstractListModel>
 #include <core/Track.h>
 
+class SyncContext;
+
 class TrackListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -10,7 +12,6 @@ class TrackListModel : public QAbstractListModel
 public:
     explicit TrackListModel(QObject *parent = 0)
         : QAbstractListModel(parent)
-        , mPosition(0.0)
         , mAudioSamples(nullptr) {}
     ~TrackListModel() {}
 
@@ -18,6 +19,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     void addFloatTrack(void);
+    void SetSyncContext(SyncContext* inSyncContext) { mSyncContext = inSyncContext; }
+    SyncContext* GetSyncContext(void) { return mSyncContext; }
 
     void setAudioSamples(const std::vector<unsigned short>* inAudioSamples) { mAudioSamples = inAudioSamples; }
     void setMinSample(unsigned short inSample) { mMinSample = inSample; }
@@ -35,8 +38,7 @@ public:
     };
 
 private:
-    std::vector<Track*> mTracks;
-    double mPosition;
+    SyncContext* mSyncContext;
     const std::vector<unsigned short>* mAudioSamples;
     unsigned short mMinSample;
     unsigned short mMaxSample;

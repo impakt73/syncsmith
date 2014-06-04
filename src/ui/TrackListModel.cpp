@@ -1,4 +1,5 @@
 #include <ui/TrackListModel.h>
+#include <SyncContext.h>
 #include <core/FloatTrack.h>
 
 QVariant TrackListModel::data(const QModelIndex &index, int role) const
@@ -38,6 +39,5 @@ QVariant TrackListModel::data(const QModelIndex &index, int role) const
 void TrackListModel::addFloatTrack()
 {
     beginInsertRows(QModelIndex(), 0, 0);
-    mTracks.push_back(new FloatTrack("TestTrack"));
     endInsertRows();
 }

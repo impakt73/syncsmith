@@ -2,6 +2,8 @@
 
 #include <QAbstractItemDelegate>
 
+class FloatTrack;
+
 class TrackItemDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
@@ -12,4 +14,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+private:
+    void RenderFloatTrack(QPainter *painter, const QStyleOptionViewItem &option, FloatTrack* inFloatTrack);
 };
