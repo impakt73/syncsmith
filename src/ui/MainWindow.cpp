@@ -9,12 +9,15 @@ MainWindow::MainWindow(QWidget *parent) :
     mTrackItemDelegate(this),
     mDecoder(this),
     mSyncServer(this),
+    mTrackModel(this),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     mNumbers << "One" << "Two" << "Three" << "Four" << "Five" << "Six" << "Seven" << "Eight" << "Nine" << "Ten" << "Eleven" << "Twelve";
     mModel = new QStringListModel(mNumbers);
+
+    mTrackModel.SetSyncContext(mSyncServer.GetSyncContext());
 
     mTrackModel.addFloatTrack();
 

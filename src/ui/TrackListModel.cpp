@@ -1,13 +1,13 @@
 #include <ui/TrackListModel.h>
 #include <SyncContext.h>
 #include <core/FloatTrack.h>
+#include <QtCore>
 
 QVariant TrackListModel::data(const QModelIndex &index, int role) const
 {
     unsigned int trackIndex = static_cast<unsigned int>(index.row());
-    Q_ASSERT(trackIndex < mTracks.size());
 
-    Track* track = mTracks[trackIndex];
+    Track* track = mSyncContext->GetTrack(trackIndex);
     Q_ASSERT(track != nullptr);
 
     switch(role)
@@ -20,17 +20,6 @@ QVariant TrackListModel::data(const QModelIndex &index, int role) const
         {
             return QVariant(track->GetType());
         }
-        case TrackListModel::DataRole:
-        {
-            switch(track->GetType())
-            {
-                case kTrackType_Float:
-                {
-                    FloatTrack* floatTrack = static_cast<FloatTrack*>(track);
-                    return QVariant(floatTrack->GetValue(mPosition));
-                }
-            }
-        }
     }
 
     return QVariant();
@@ -39,5 +28,6 @@ QVariant TrackListModel::data(const QModelIndex &index, int role) const
 void TrackListModel::addFloatTrack()
 {
     beginInsertRows(QModelIndex(), 0, 0);
+    mSyncContext->AddTrack("Test Float Track", kTrackType_Float);
     endInsertRows();
 }

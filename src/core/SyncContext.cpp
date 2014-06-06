@@ -1,6 +1,7 @@
 #include <SyncContext.h>
 #include <core/Track.h>
 #include <core/FloatTrack.h>
+#include <QtMath>
 
 template <>
 float SyncContext::GetValue<float>(const std::string& inTrackName)
@@ -40,4 +41,58 @@ Track* SyncContext::GetTrack(const std::string& inTrackName)
         return nullptr;
     }
 }
+
+Track* SyncContext::GetTrack(unsigned int inTrackIndex)
+{
+    if(inTrackIndex >= mTrackList.size())
+        return nullptr;
+
+    return mTrackList[inTrackIndex];
+}
+
+const Track* SyncContext::GetTrack(const std::string& inTrackName) const
+{
+    std::map<std::string, Track*>::const_iterator trackIterator = mTracks.find(inTrackName);
+    if(trackIterator != mTracks.end())
+    {
+        return trackIterator->second;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+const Track* SyncContext::GetTrack(unsigned int inTrackIndex) const
+{
+    if(inTrackIndex >= mTrackList.size())
+        return nullptr;
+
+    return mTrackList[inTrackIndex];
+}
+
+Track* SyncContext::AddTrack(const std::string& inTrackName, eTrackType inTrackType)
+{
+    std::map<std::string, Track*>::const_iterator trackIterator = mTracks.find(inTrackName);
+    if(trackIterator == mTracks.end())
+    {
+        switch(inTrackType)
+        {
+            case kTrackType_Float:
+            {
+                FloatTrack* floatTrack = new FloatTrack(inTrackName);
+                for(int i = 0; i < 100; i += 5)
+                {
+                    floatTrack->AddKey(i*0.10f, ( sin(i*0.10f) * 0.5f + 0.5f ) * 100.0f);
+                }
+                mTracks[inTrackName] = floatTrack;
+                mTrackList.push_back(floatTrack);
+                break;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
 

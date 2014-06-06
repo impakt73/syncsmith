@@ -16,5 +16,5 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
-    void RenderFloatTrack(QPainter *painter, const QStyleOptionViewItem &option, FloatTrack* inFloatTrack);
+    void RenderFloatTrack(QPainter *painter, const QStyleOptionViewItem &option, const FloatTrack* inFloatTrack) const;
 };

@@ -17,7 +17,12 @@ TrackItemDelegate::~TrackItemDelegate()
 void TrackItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     const TrackListModel* model = static_cast<const TrackListModel*>(index.model());
-    model->
+    const Track* track = model->GetSyncContext()->GetTrack(index.row());
+    if(track->GetType() == kTrackType_Float)
+    {
+        RenderFloatTrack(painter, option, static_cast<const FloatTrack*>(track));
+    }
+    //model->
     /*
     const std::vector<unsigned short>* audioSamples = model->getAudioSamples();
 
@@ -76,7 +81,7 @@ float NormalizeDataValue(float inMinDataValue, float inMaxDataValue, float inDat
     return (inDataValue - inMinDataValue) / (inMaxDataValue - inMinDataValue);
 }
 
-void TrackItemDelegate::RenderFloatTrack(QPainter *painter, const QStyleOptionViewItem &option, FloatTrack *inFloatTrack)
+void TrackItemDelegate::RenderFloatTrack(QPainter *painter, const QStyleOptionViewItem &option, const FloatTrack *inFloatTrack) const
 {
     painter->save();
     painter->setPen(Qt::NoPen);
@@ -110,31 +115,55 @@ void TrackItemDelegate::RenderFloatTrack(QPainter *painter, const QStyleOptionVi
     if(inFloatTrack->GetKeyCount() > 0)
     {
         pen.setBrush(Qt::green);
-        painter->setBrush(Qt::green);
+        painter->setBrush(Qt::NoBrush);
 
         QPainterPath painterPath;
 
-        TrackKey<float>& firstKey = inFloatTrack->GetKey(0);
+        QVector<QPoint> keyPoints;
+        keyPoints.reserve(inFloatTrack->GetKeyCount());
+
+        const TrackKey<float>& firstKey = inFloatTrack->GetKey(0);
         float trackNormalizedValue = NormalizeDataValue(0.0f, 100.0f, firstKey.GetData());
         QPoint firstKeyPos = QPoint(UIConstants::SecondSizeInPixels*firstKey.GetPosition(), option.rect.height() - ( trackNormalizedValue * option.rect.height() ));
 
-        painterPath.moveTo(firstKeyPos);
+        //painterPath.moveTo(firstKeyPos);
+        keyPoints.push_back(firstKeyPos);
 
+        /*
         for(int keyIndex = 0; keyIndex < inFloatTrack->GetKeyCount()-1; ++keyIndex)
         {
-            TrackKey<float>& currentKey = inFloatTrack->GetKey(keyIndex);
-            TrackKey<float>& nextKey = inFloatTrack->GetKey(keyIndex+1);
+            const TrackKey<float>& currentKey = inFloatTrack->GetKey(keyIndex);
+            const TrackKey<float>& nextKey = inFloatTrack->GetKey(keyIndex+1);
 
             float currentKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, currentKey.GetData());
             float nextKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, nextKey.GetData());
 
             QPoint currentKeyPos = QPoint(UIConstants::SecondSizeInPixels*currentKey.GetPosition(), option.rect.height() - ( currentKeyNormalizedValue * option.rect.height() ));
             QPoint nextKeyPos = QPoint(UIConstants::SecondSizeInPixels*nextKey.GetPosition(), option.rect.height() - ( nextKeyNormalizedValue * option.rect.height() ));
-            painter->drawEllipse(currentKeyPos, 10, 10);
+            painter->drawEllipse(currentKeyPos, 4, 4);
             painterPath.lineTo(nextKeyPos);
         }
+        */
 
-        painter->drawPath(painterPath);
+        for(int keyIndex = 0; keyIndex < inFloatTrack->GetKeyCount(); ++keyIndex)
+        {
+            const TrackKey<float>& currentKey = inFloatTrack->GetKey(keyIndex);
+
+            float currentKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, currentKey.GetData());
+
+            QPoint currentKeyPos = QPoint(UIConstants::SecondSizeInPixels*currentKey.GetPosition(), option.rect.height() - ( currentKeyNormalizedValue * option.rect.height() ));
+            keyPoints.push_back(currentKeyPos);
+        }
+
+        //painter->drawPath(painterPath);
+        for(int keyPointIndex = 0; keyPointIndex < keyPoints.size()-1; ++keyPointIndex)
+        {
+            painter->drawLine(keyPoints[keyPointIndex], keyPoints[keyPointIndex+1]);
+        }
+        for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
+        {
+            painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
+        }
     }
 
     painter->restore();

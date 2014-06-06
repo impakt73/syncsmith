@@ -2,8 +2,7 @@
 
 #include <QAbstractListModel>
 #include <core/Track.h>
-
-class SyncContext;
+#include <SyncContext.h>
 
 class TrackListModel : public QAbstractListModel
 {
@@ -15,12 +14,13 @@ public:
         , mAudioSamples(nullptr) {}
     ~TrackListModel() {}
 
-    int rowCount(const QModelIndex &parent) const { return static_cast<int>(mTracks.size()); }
+    int rowCount(const QModelIndex &parent) const { return static_cast<int>(mSyncContext->GetTrackCount()); }
     QVariant data(const QModelIndex &index, int role) const;
 
     void addFloatTrack(void);
     void SetSyncContext(SyncContext* inSyncContext) { mSyncContext = inSyncContext; }
     SyncContext* GetSyncContext(void) { return mSyncContext; }
+    const SyncContext* GetSyncContext(void) const { return mSyncContext; }
 
     void setAudioSamples(const std::vector<unsigned short>* inAudioSamples) { mAudioSamples = inAudioSamples; }
     void setMinSample(unsigned short inSample) { mMinSample = inSample; }
