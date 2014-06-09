@@ -2,6 +2,7 @@
 #include <SyncContext.h>
 #include <core/FloatTrack.h>
 #include <QtCore>
+#include <ui/TrackHandle.h>
 
 QVariant TrackListModel::data(const QModelIndex &index, int role) const
 {
@@ -16,18 +17,27 @@ QVariant TrackListModel::data(const QModelIndex &index, int role) const
         {
             return QVariant(QString(track->GetName().c_str()));
         }
-        case TrackListModel::TypeRole:
+        case TrackListModel::TrackHandleRole:
         {
-            return QVariant(track->GetType());
+            QVariant variant;
+            variant.setValue(TrackHandle(track));
+            return variant;
         }
     }
 
     return QVariant();
 }
 
+QFlags<Qt::ItemFlag> TrackListModel::flags(const QModelIndex &index) const
+{
+    return (Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
+}
+
 void TrackListModel::addFloatTrack()
 {
     beginInsertRows(QModelIndex(), 0, 0);
-    mSyncContext->AddTrack("Test Float Track", kTrackType_Float);
+    mSyncContext->AddTrack("Test Float Track 1", kTrackType_Float);
+    mSyncContext->AddTrack("Test Float Track 2", kTrackType_Float);
+    mSyncContext->AddTrack("Test Float Track 3", kTrackType_Float);
     endInsertRows();
 }

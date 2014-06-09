@@ -17,6 +17,8 @@ public:
     int rowCount(const QModelIndex &parent) const { return static_cast<int>(mSyncContext->GetTrackCount()); }
     QVariant data(const QModelIndex &index, int role) const;
 
+    QFlags<Qt::ItemFlag> flags(const QModelIndex &index) const;
+
     void addFloatTrack(void);
     void SetSyncContext(SyncContext* inSyncContext) { mSyncContext = inSyncContext; }
     SyncContext* GetSyncContext(void) { return mSyncContext; }
@@ -33,8 +35,7 @@ public:
 
     enum eTrackDataRole
     {
-        TypeRole = Qt::UserRole,
-        DataRole
+        TrackHandleRole = Qt::UserRole
     };
 
 private:

@@ -3,9 +3,11 @@
 #include <ui/TrackListModel.h>
 #include <ui/UIConstants.h>
 #include <core/FloatTrack.h>
+#include <ui/FloatTrackEditor.h>
+#include <ui/TrackHandle.h>
 
 TrackItemDelegate::TrackItemDelegate(QObject *parent)
-    : QAbstractItemDelegate(parent)
+    : QStyledItemDelegate(parent)
 {
 }
 
@@ -76,6 +78,30 @@ QSize TrackItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMod
     return QSize(model->getAudioLength() * UIConstants::SecondSizeInPixels, 100);
 }
 
+QWidget *TrackItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    if(index.data(TrackListModel::TrackHandleRole).canConvert<TrackHandle>())
+    {
+        TrackHandle trackHandle = index.data(TrackListModel::TrackHandleRole).value<TrackHandle>();
+        if(trackHandle.track()->GetType() == kTrackType_Float)
+        {
+            FloatTrackEditor* editor = new FloatTrackEditor(parent);
+            connect(editor, &FloatTrackEditor::editingFinished, this, &TrackItemDelegate::commitAndCloseEditor);
+            return editor;
+        }
+    }
+}
+
+void TrackItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+
+}
+
+void TrackItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+
+}
+
 float NormalizeDataValue(float inMinDataValue, float inMaxDataValue, float inDataValue)
 {
     return (inDataValue - inMinDataValue) / (inMaxDataValue - inMinDataValue);
@@ -117,14 +143,12 @@ void TrackItemDelegate::RenderFloatTrack(QPainter *painter, const QStyleOptionVi
         pen.setBrush(Qt::green);
         painter->setBrush(Qt::NoBrush);
 
-        QPainterPath painterPath;
-
         QVector<QPoint> keyPoints;
         keyPoints.reserve(inFloatTrack->GetKeyCount());
 
         const TrackKey<float>& firstKey = inFloatTrack->GetKey(0);
         float trackNormalizedValue = NormalizeDataValue(0.0f, 100.0f, firstKey.GetData());
-        QPoint firstKeyPos = QPoint(UIConstants::SecondSizeInPixels*firstKey.GetPosition(), option.rect.height() - ( trackNormalizedValue * option.rect.height() ));
+        QPoint firstKeyPos = QPoint(option.rect.x() + UIConstants::SecondSizeInPixels*firstKey.GetPosition(), option.rect.y() + option.rect.height() - ( trackNormalizedValue * option.rect.height() ));
 
         //painterPath.moveTo(firstKeyPos);
         keyPoints.push_back(firstKeyPos);
@@ -151,7 +175,7 @@ void TrackItemDelegate::RenderFloatTrack(QPainter *painter, const QStyleOptionVi
 
             float currentKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, currentKey.GetData());
 
-            QPoint currentKeyPos = QPoint(UIConstants::SecondSizeInPixels*currentKey.GetPosition(), option.rect.height() - ( currentKeyNormalizedValue * option.rect.height() ));
+            QPoint currentKeyPos = QPoint(option.rect.x() + UIConstants::SecondSizeInPixels*currentKey.GetPosition(), option.rect.y() + option.rect.height() - ( currentKeyNormalizedValue * option.rect.height() ));
             keyPoints.push_back(currentKeyPos);
         }
 
@@ -167,4 +191,9 @@ void TrackItemDelegate::RenderFloatTrack(QPainter *painter, const QStyleOptionVi
     }
 
     painter->restore();
+}
+
+void TrackItemDelegate::commitAndCloseEditor()
+{
+
 }

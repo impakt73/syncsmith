@@ -70,6 +70,9 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     ui/TrackListModel.h
     ui/TrackListModel.cpp
     ui/UIConstants.h
+    ui/TrackHandle.h
+    ui/FloatTrackEditor.h
+    ui/FloatTrackEditor.cpp
     core/Track.h
     core/TrackType.h
     core/FloatTrack.h
