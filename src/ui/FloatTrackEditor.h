@@ -17,9 +17,12 @@ public:
 
 private:
     void paintEvent(QPaintEvent * event);
+    void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
     Track* mTrack;
+    QPoint mLastMousePosition;
 
 signals:
     void editingFinished();

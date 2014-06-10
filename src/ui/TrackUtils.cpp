@@ -6,8 +6,8 @@
 void TrackUtils::RenderTrackBackground(QPainter *painter, const QRect &rect, const Track *inTrack)
 {
     painter->save();
-    painter->setPen(Qt::NoPen);
-    painter->fillRect(rect, Qt::gray);
+    //painter->setPen(Qt::NoPen);
+    //painter->fillRect(rect, Qt::gray);
     painter->setRenderHint(QPainter::Antialiasing, true);
 
     QPen pen;
@@ -29,7 +29,7 @@ void TrackUtils::RenderTrackBackground(QPainter *painter, const QRect &rect, con
     painter->restore();
 }
 
-void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Track *inTrack, bool inIsEditMode)
+void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Track *inTrack, bool inIsEditMode, const QPoint& inMousePos)
 {
     Q_ASSERT(inTrack->GetType() == kTrackType_Float);
     const FloatTrack* floatTrack = static_cast<const FloatTrack*>(inTrack);
@@ -67,9 +67,20 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
 
         if(inIsEditMode)
         {
+            painter->setPen(Qt::green);
             for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
             {
-                painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
+                float distance = Distance(inMousePos, keyPoints[keyPointIndex]);
+                if(distance <= 4.0f)
+                {
+                    painter->setPen(Qt::red);
+                    painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
+                    painter->setPen(Qt::green);
+                }
+                else
+                {
+                    painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
+                }
             }
         }
     }

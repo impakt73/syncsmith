@@ -26,7 +26,7 @@ void TrackItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     if(track->GetType() == kTrackType_Float)
     {
-        TrackUtils::RenderFloatTrack(painter, option.rect, track, false);
+        TrackUtils::RenderFloatTrack(painter, option.rect, track, false, QPoint());
     }
 }
 
