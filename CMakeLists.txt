@@ -73,6 +73,8 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     ui/TrackHandle.h
     ui/FloatTrackEditor.h
     ui/FloatTrackEditor.cpp
+    ui/TrackUtils.h
+    ui/TrackUtils.cpp
     core/Track.h
     core/TrackType.h
     core/FloatTrack.h

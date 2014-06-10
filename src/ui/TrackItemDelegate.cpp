@@ -5,6 +5,7 @@
 #include <core/FloatTrack.h>
 #include <ui/FloatTrackEditor.h>
 #include <ui/TrackHandle.h>
+#include <ui/TrackUtils.h>
 
 TrackItemDelegate::TrackItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -20,56 +21,13 @@ void TrackItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 {
     const TrackListModel* model = static_cast<const TrackListModel*>(index.model());
     const Track* track = model->GetSyncContext()->GetTrack(index.row());
+
+    TrackUtils::RenderTrackBackground(painter, option.rect, track);
+
     if(track->GetType() == kTrackType_Float)
     {
-        RenderFloatTrack(painter, option, static_cast<const FloatTrack*>(track));
+        TrackUtils::RenderFloatTrack(painter, option.rect, track, false);
     }
-    //model->
-    /*
-    const std::vector<unsigned short>* audioSamples = model->getAudioSamples();
-
-    painter->save();
-    painter->setPen(Qt::NoPen);
-    painter->fillRect(option.rect, Qt::gray);
-    painter->setRenderHint(QPainter::Antialiasing, true);
-    QPen pen;
-    if(option.state & QStyle::State_Selected)
-    {
-        pen.setBrush(Qt::red);
-    }
-    else
-    {
-        pen.setBrush(Qt::black);
-    }
-    pen.setWidth(1);
-    pen.setCapStyle(Qt::RoundCap);
-    pen.setJoinStyle(Qt::RoundJoin);
-    painter->setPen(pen);
-    painter->setBrush(Qt::gray);
-
-    int xCenter = option.rect.x() + option.rect.width() / 2;
-    QLinearGradient gradient(xCenter, option.rect.y(), xCenter, option.rect.y() + option.rect.height());
-    gradient.setInterpolationMode(QLinearGradient::ColorInterpolation);
-    gradient.setColorAt(0, Qt::lightGray);
-    gradient.setColorAt(1, Qt::darkGray);
-    painter->setBrush(gradient);
-
-    painter->drawRect(option.rect.x() + 3, option.rect.y() + 3, option.rect.width() - 4, option.rect.height() - 4);
-
-    if(audioSamples != nullptr)
-    {
-        for(int sampleIndex = 0; sampleIndex < audioSamples->size() && sampleIndex*3 < option.rect.width(); ++sampleIndex)
-        {
-            unsigned short sampleValue = (*audioSamples)[sampleIndex];
-            float barLength = (float)(sampleValue - model->getMinSample()) / (float)(model->getMaxSample() - model->getMinSample());
-            int barLengthInPixels = barLength * ((option.rect.height() / 2.0f) - 4);
-            painter->drawLine(option.rect.x() + sampleIndex*8, (option.rect.height()/2) - barLengthInPixels, option.rect.x() + sampleIndex*8, (option.rect.height()/2) + barLengthInPixels);
-        }
-    }
-
-    painter->drawText(QPoint(option.rect.x() + option.rect.width() / 2, option.rect.y() + option.rect.height() / 2), qvariant_cast<QString>(index.data()));
-    painter->restore();
-    */
 }
 
 QSize TrackItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -85,7 +43,7 @@ QWidget *TrackItemDelegate::createEditor(QWidget *parent, const QStyleOptionView
         TrackHandle trackHandle = index.data(TrackListModel::TrackHandleRole).value<TrackHandle>();
         if(trackHandle.track()->GetType() == kTrackType_Float)
         {
-            FloatTrackEditor* editor = new FloatTrackEditor(parent);
+            FloatTrackEditor* editor = new FloatTrackEditor(trackHandle.track(), parent);
             connect(editor, &FloatTrackEditor::editingFinished, this, &TrackItemDelegate::commitAndCloseEditor);
             return editor;
         }
@@ -94,103 +52,20 @@ QWidget *TrackItemDelegate::createEditor(QWidget *parent, const QStyleOptionView
 
 void TrackItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-
+    if(index.data(TrackListModel::TrackHandleRole).canConvert<TrackHandle>())
+    {
+        TrackHandle trackHandle = index.data(TrackListModel::TrackHandleRole).value<TrackHandle>();
+        if(trackHandle.track()->GetType() == kTrackType_Float)
+        {
+            FloatTrackEditor* editor = static_cast<FloatTrackEditor*>(editor);
+            editor->setTrack(trackHandle.track());
+        }
+    }
 }
 
 void TrackItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
 
-}
-
-float NormalizeDataValue(float inMinDataValue, float inMaxDataValue, float inDataValue)
-{
-    return (inDataValue - inMinDataValue) / (inMaxDataValue - inMinDataValue);
-}
-
-void TrackItemDelegate::RenderFloatTrack(QPainter *painter, const QStyleOptionViewItem &option, const FloatTrack *inFloatTrack) const
-{
-    painter->save();
-    painter->setPen(Qt::NoPen);
-    painter->fillRect(option.rect, Qt::gray);
-    painter->setRenderHint(QPainter::Antialiasing, true);
-
-    QPen pen;
-    if(option.state & QStyle::State_Selected)
-    {
-        pen.setBrush(Qt::red);
-    }
-    else
-    {
-        pen.setBrush(Qt::black);
-    }
-    pen.setWidth(1);
-    pen.setCapStyle(Qt::RoundCap);
-    pen.setJoinStyle(Qt::RoundJoin);
-    painter->setPen(pen);
-    painter->setBrush(Qt::gray);
-
-    int xCenter = option.rect.x() + option.rect.width() / 2;
-    QLinearGradient gradient(xCenter, option.rect.y(), xCenter, option.rect.y() + option.rect.height());
-    gradient.setInterpolationMode(QLinearGradient::ColorInterpolation);
-    gradient.setColorAt(0, Qt::lightGray);
-    gradient.setColorAt(1, Qt::darkGray);
-    painter->setBrush(gradient);
-
-    painter->drawRect(option.rect.x() + 3, option.rect.y() + 3, option.rect.width() - 4, option.rect.height() - 4);
-
-    if(inFloatTrack->GetKeyCount() > 0)
-    {
-        pen.setBrush(Qt::green);
-        painter->setBrush(Qt::NoBrush);
-
-        QVector<QPoint> keyPoints;
-        keyPoints.reserve(inFloatTrack->GetKeyCount());
-
-        const TrackKey<float>& firstKey = inFloatTrack->GetKey(0);
-        float trackNormalizedValue = NormalizeDataValue(0.0f, 100.0f, firstKey.GetData());
-        QPoint firstKeyPos = QPoint(option.rect.x() + UIConstants::SecondSizeInPixels*firstKey.GetPosition(), option.rect.y() + option.rect.height() - ( trackNormalizedValue * option.rect.height() ));
-
-        //painterPath.moveTo(firstKeyPos);
-        keyPoints.push_back(firstKeyPos);
-
-        /*
-        for(int keyIndex = 0; keyIndex < inFloatTrack->GetKeyCount()-1; ++keyIndex)
-        {
-            const TrackKey<float>& currentKey = inFloatTrack->GetKey(keyIndex);
-            const TrackKey<float>& nextKey = inFloatTrack->GetKey(keyIndex+1);
-
-            float currentKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, currentKey.GetData());
-            float nextKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, nextKey.GetData());
-
-            QPoint currentKeyPos = QPoint(UIConstants::SecondSizeInPixels*currentKey.GetPosition(), option.rect.height() - ( currentKeyNormalizedValue * option.rect.height() ));
-            QPoint nextKeyPos = QPoint(UIConstants::SecondSizeInPixels*nextKey.GetPosition(), option.rect.height() - ( nextKeyNormalizedValue * option.rect.height() ));
-            painter->drawEllipse(currentKeyPos, 4, 4);
-            painterPath.lineTo(nextKeyPos);
-        }
-        */
-
-        for(int keyIndex = 0; keyIndex < inFloatTrack->GetKeyCount(); ++keyIndex)
-        {
-            const TrackKey<float>& currentKey = inFloatTrack->GetKey(keyIndex);
-
-            float currentKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, currentKey.GetData());
-
-            QPoint currentKeyPos = QPoint(option.rect.x() + UIConstants::SecondSizeInPixels*currentKey.GetPosition(), option.rect.y() + option.rect.height() - ( currentKeyNormalizedValue * option.rect.height() ));
-            keyPoints.push_back(currentKeyPos);
-        }
-
-        //painter->drawPath(painterPath);
-        for(int keyPointIndex = 0; keyPointIndex < keyPoints.size()-1; ++keyPointIndex)
-        {
-            painter->drawLine(keyPoints[keyPointIndex], keyPoints[keyPointIndex+1]);
-        }
-        for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
-        {
-            painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
-        }
-    }
-
-    painter->restore();
 }
 
 void TrackItemDelegate::commitAndCloseEditor()

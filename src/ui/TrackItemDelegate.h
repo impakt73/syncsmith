@@ -19,9 +19,6 @@ public:
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 
-private:
-    void RenderFloatTrack(QPainter *painter, const QStyleOptionViewItem &option, const FloatTrack* inFloatTrack) const;
-
 private slots:
     void commitAndCloseEditor();
 };
