@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mTrackModel.addFloatTrack();
 
+    setFocusPolicy(Qt::StrongFocus);
+
     TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
     QListView* listView = this->findChild<QListView*>("listView");
     QListView* listView2 = this->findChild<QListView*>("listView_2");
@@ -33,14 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&mSyncServer, &SyncServer::PositionChanged, this, &MainWindow::on_position_changed);
 
     mSyncServer.Start();
-
-    grabKeyboard();
 }
 
 MainWindow::~MainWindow()
 {
-    releaseKeyboard();
-
     mSyncServer.Stop();
 
     delete mModel;

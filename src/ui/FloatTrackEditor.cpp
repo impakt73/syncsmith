@@ -13,6 +13,7 @@ FloatTrackEditor::FloatTrackEditor(Track* inTrack, QWidget *parent)
     setMouseTracking(true);
     setCursor(Qt::BlankCursor);
     setAttribute(Qt::WA_OpaquePaintEvent);
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 void FloatTrackEditor::paintEvent(QPaintEvent *event)
@@ -52,6 +53,8 @@ void FloatTrackEditor::mouseMoveEvent(QMouseEvent *event)
     }
 
     update();
+
+    event->accept();
 }
 
 void FloatTrackEditor::mousePressEvent(QMouseEvent *event)
@@ -85,6 +88,8 @@ void FloatTrackEditor::mousePressEvent(QMouseEvent *event)
     }
 
     update();
+
+    event->accept();
 }
 
 void FloatTrackEditor::mouseReleaseEvent(QMouseEvent *event)
@@ -93,4 +98,30 @@ void FloatTrackEditor::mouseReleaseEvent(QMouseEvent *event)
 
     mIsEditingKey = false;
     update();
+
+    event->accept();
+}
+
+void FloatTrackEditor::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_I)
+    {
+        // Cut the position down into increments of tenths of a second
+        double keyPosition = (mLastMousePosition.x() / (UIConstants::SecondSizeInPixels / 10)) / 10.0f;
+        FloatTrack* floatTrack = static_cast<FloatTrack*>(mTrack);
+        unsigned int keyIndex = 0;
+        if(floatTrack->GetKeyIndex(keyPosition, &keyIndex))
+        {
+            TrackKey<float>& key = floatTrack->GetKey(keyIndex);
+            key.SetInterpolationType((eTrackInterpolationType)((key.GetInterpolationType() + 1) % kTrackInterpolationType_Max));
+        }
+
+        update();
+
+        event->accept();
+    }
+    else
+    {
+        event->ignore();
+    }
 }

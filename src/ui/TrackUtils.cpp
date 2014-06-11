@@ -48,7 +48,7 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
         {
             const TrackKey<float>& currentKey = floatTrack->GetKey(keyIndex);
 
-            float currentKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, currentKey.GetData());
+            float currentKeyNormalizedValue = NormalizeDataValue(floatTrack->GetMinValue(), floatTrack->GetMaxValue(), currentKey.GetData());
 
             QPoint currentKeyPos = QPoint(rect.x() + UIConstants::SecondSizeInPixels*currentKey.GetPosition(), rect.y() + rect.height() - ( currentKeyNormalizedValue * rect.height() ));
             keyPoints.push_back(currentKeyPos);
@@ -56,45 +56,76 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
 
         for(int keyPointIndex = 0; keyPointIndex < keyPoints.size()-1; ++keyPointIndex)
         {
+            switch(floatTrack->GetKey(keyPointIndex).GetInterpolationType())
+            {
+                case kTrackInterpolationType_None:
+                {
+                    painter->setPen(Qt::black);
+                    break;
+                }
+                case kTrackInterpolationType_Linear:
+                {
+                    painter->setPen(Qt::red);
+                    break;
+                }
+                case kTrackInterpolationType_Smoothstep:
+                {
+                    painter->setPen(Qt::green);
+                    break;
+                }
+                case kTrackInterpolationType_Cosine:
+                {
+                    painter->setPen(Qt::yellow);
+                    break;
+                }
+            }
+
             painter->drawLine(keyPoints[keyPointIndex], keyPoints[keyPointIndex+1]);
         }
 
         if(inIsEditMode)
         {
-            painter->setPen(Qt::green);
+            painter->setPen(Qt::blue);
             for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
             {
                 painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
+            }
+
+            painter->setPen(Qt::yellow);
+            int tenthSecondSizeInPixels = UIConstants::SecondSizeInPixels / 10;
+            int xPos = (inMousePos.x() / tenthSecondSizeInPixels) * tenthSecondSizeInPixels;
+            QPoint clampedMousePos = QPoint(xPos, inMousePos.y());
+            painter->drawLine(xPos, rect.y(), xPos, rect.y() + rect.height());
+            painter->drawEllipse(clampedMousePos, 4, 4);
+
+            for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
+            {
+                float distance = Distance(clampedMousePos, keyPoints[keyPointIndex]);
+                if(distance <= 4.0f)
+                {
+                    painter->setPen(Qt::yellow);
+                    const QFont& currentFont = painter->font();
+                    QFontMetrics metrics(currentFont);
+                    QString text = QString::number(floatTrack->GetKey(keyPointIndex).GetData());
+                    QSize textSize = metrics.size(0, text);
+                    QPoint textOffset = QPoint(8, textSize.height() / 4.0f);
+                    painter->drawText(clampedMousePos + textOffset, text);
+
+                    break;
+                }
             }
         }
     }
 
     if(inIsEditMode)
     {
-        painter->setPen(Qt::green);
-        /*
-        for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
-        {
-            float distance = Distance(inMousePos, keyPoints[keyPointIndex]);
-            if(distance <= 4.0f)
-            {
-                painter->setPen(Qt::red);
-                painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
-                painter->setPen(Qt::green);
-            }
-            else
-            {
-                painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
-            }
-        }
-        */
-
         // Draw crosshair for editing points
         painter->setPen(Qt::yellow);
         int tenthSecondSizeInPixels = UIConstants::SecondSizeInPixels / 10;
         int xPos = (inMousePos.x() / tenthSecondSizeInPixels) * tenthSecondSizeInPixels;
+        QPoint clampedMousePos = QPoint(xPos, inMousePos.y());
         painter->drawLine(xPos, rect.y(), xPos, rect.y() + rect.height());
-        painter->drawEllipse(QPoint(xPos, inMousePos.y()), 4, 4);
+        painter->drawEllipse(clampedMousePos, 4, 4);
     }
 
     painter->restore();

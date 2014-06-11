@@ -8,7 +8,10 @@ class FloatTrack : public Track
 {
 public:
     FloatTrack(const std::string& inName)
-        : Track(inName, kTrackType_Float) {}
+        : Track(inName, kTrackType_Float)
+        , mMinValue(0.0f)
+        , mMaxValue(100.0f) {}
+
     ~FloatTrack(void) {}
 
     float GetValue(double inPosition) const;
@@ -23,6 +26,11 @@ public:
     void AddKey(double inPosition, float inValue);
     void RemoveKey(unsigned int inIndex);
 
+    inline float GetMinValue(void) const { return mMinValue; }
+    inline float GetMaxValue(void) const { return mMaxValue; }
+
 private:
     std::vector<TrackKey<float>> mKeys;
+    float mMinValue;
+    float mMaxValue;
 };
