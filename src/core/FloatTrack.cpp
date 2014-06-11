@@ -1,4 +1,10 @@
 #include <core/FloatTrack.h>
+#include <algorithm>
+
+int SortTrackKeys(const TrackKey<float>& inA, const TrackKey<float>& inB)
+{
+    return inA.GetPosition() < inB.GetPosition();
+}
 
 float FloatTrack::GetValue(double inPosition) const
 {
@@ -22,4 +28,11 @@ bool FloatTrack::GetKeyIndex(double inPosition, unsigned int* outKeyIndex)
 void FloatTrack::AddKey(double inPosition, float inValue)
 {
     mKeys.push_back(TrackKey<float>(inPosition, inValue));
+    std::sort(mKeys.begin(), mKeys.end(), SortTrackKeys);
+}
+
+void FloatTrack::RemoveKey(unsigned int inIndex)
+{
+    mKeys.erase(mKeys.begin() + inIndex);
+    std::sort(mKeys.begin(), mKeys.end(), SortTrackKeys);
 }

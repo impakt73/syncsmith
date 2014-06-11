@@ -81,10 +81,6 @@ Track* SyncContext::AddTrack(const std::string& inTrackName, eTrackType inTrackT
             case kTrackType_Float:
             {
                 FloatTrack* floatTrack = new FloatTrack(inTrackName);
-                for(int i = 0; i < 100; i += 10)
-                {
-                    floatTrack->AddKey(i*0.10f, ( sin(i*0.10f) * 0.5f + 0.5f ) * 100.0f);
-                }
                 mTracks[inTrackName] = floatTrack;
                 mTrackList.push_back(floatTrack);
                 break;

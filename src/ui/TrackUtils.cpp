@@ -64,25 +64,37 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
             painter->setPen(Qt::green);
             for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
             {
-                float distance = Distance(inMousePos, keyPoints[keyPointIndex]);
-                if(distance <= 4.0f)
-                {
-                    painter->setPen(Qt::red);
-                    painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
-                    painter->setPen(Qt::green);
-                }
-                else
-                {
-                    painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
-                }
+                painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
             }
-
-            painter->setPen(Qt::yellow);
-            int tenthSecondSizeInPixels = UIConstants::SecondSizeInPixels / 10;
-            int xPos = (inMousePos.x() / tenthSecondSizeInPixels) * tenthSecondSizeInPixels;
-            painter->drawLine(xPos, rect.y(), xPos, rect.y() + rect.height());
-            painter->drawEllipse(QPoint(xPos, inMousePos.y()), 4, 4);
         }
+    }
+
+    if(inIsEditMode)
+    {
+        painter->setPen(Qt::green);
+        /*
+        for(int keyPointIndex = 0; keyPointIndex < keyPoints.size(); ++keyPointIndex)
+        {
+            float distance = Distance(inMousePos, keyPoints[keyPointIndex]);
+            if(distance <= 4.0f)
+            {
+                painter->setPen(Qt::red);
+                painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
+                painter->setPen(Qt::green);
+            }
+            else
+            {
+                painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
+            }
+        }
+        */
+
+        // Draw crosshair for editing points
+        painter->setPen(Qt::yellow);
+        int tenthSecondSizeInPixels = UIConstants::SecondSizeInPixels / 10;
+        int xPos = (inMousePos.x() / tenthSecondSizeInPixels) * tenthSecondSizeInPixels;
+        painter->drawLine(xPos, rect.y(), xPos, rect.y() + rect.height());
+        painter->drawEllipse(QPoint(xPos, inMousePos.y()), 4, 4);
     }
 
     painter->restore();

@@ -57,7 +57,33 @@ void FloatTrackEditor::mouseMoveEvent(QMouseEvent *event)
 void FloatTrackEditor::mousePressEvent(QMouseEvent *event)
 {
     mLastMousePosition = event->pos();
-    mIsEditingKey = true;
+
+    // Cut the position down into increments of tenths of a second
+    double keyPosition = (mLastMousePosition.x() / (UIConstants::SecondSizeInPixels / 10)) / 10.0f;
+    float dataValue = (1.0f - ((float)(mLastMousePosition.y() - rect().y()) / (float)rect().height())) * 100.0f;
+    FloatTrack* floatTrack = static_cast<FloatTrack*>(mTrack);
+    unsigned int keyIndex = 0;
+    if(floatTrack->GetKeyIndex(keyPosition, &keyIndex))
+    {
+        if(event->button() == Qt::RightButton)
+        {
+            floatTrack->RemoveKey(keyIndex);
+        }
+        else
+        {
+            floatTrack->GetKey(keyIndex).SetData(dataValue);
+            mIsEditingKey = true;
+        }
+    }
+    else
+    {
+        if(event->button() == Qt::LeftButton)
+        {
+            floatTrack->AddKey(keyPosition, dataValue);
+            mIsEditingKey = true;
+        }
+    }
+
     update();
 }
 

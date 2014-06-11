@@ -21,6 +21,7 @@ public:
     bool GetKeyIndex(double inPosition, unsigned int* outKeyIndex);
 
     void AddKey(double inPosition, float inValue);
+    void RemoveKey(unsigned int inIndex);
 
 private:
     std::vector<TrackKey<float>> mKeys;
