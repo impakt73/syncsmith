@@ -18,6 +18,8 @@ public:
 
     inline unsigned int GetKeyCount(void) const { return mKeys.size(); }
 
+    bool GetKeyIndex(double inPosition, unsigned int* outKeyIndex);
+
     void AddKey(double inPosition, float inValue);
 
 private:

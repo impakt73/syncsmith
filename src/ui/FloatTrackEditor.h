@@ -24,6 +24,8 @@ private:
     Track* mTrack;
     QPoint mLastMousePosition;
 
+    bool mIsEditingKey;
+
 signals:
     void editingFinished();
 

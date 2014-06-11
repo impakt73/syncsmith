@@ -44,19 +44,13 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
         QVector<QPoint> keyPoints;
         keyPoints.reserve(floatTrack->GetKeyCount());
 
-        const TrackKey<float>& firstKey = floatTrack->GetKey(0);
-        float trackNormalizedValue = NormalizeDataValue(0.0f, 100.0f, firstKey.GetData());
-        QPoint firstKeyPos = QPoint((rect.x() + 3) + UIConstants::SecondSizeInPixels*firstKey.GetPosition(), (rect.y() + 3) + (rect.height() - 4) - ( trackNormalizedValue * (rect.height() - 4) ));
-
-        keyPoints.push_back(firstKeyPos);
-
         for(int keyIndex = 0; keyIndex < floatTrack->GetKeyCount(); ++keyIndex)
         {
             const TrackKey<float>& currentKey = floatTrack->GetKey(keyIndex);
 
             float currentKeyNormalizedValue = NormalizeDataValue(0.0f, 100.0f, currentKey.GetData());
 
-            QPoint currentKeyPos = QPoint((rect.x() + 3) + UIConstants::SecondSizeInPixels*currentKey.GetPosition(), (rect.y() + 3) + (rect.height() - 4) - ( currentKeyNormalizedValue * (rect.height() - 4) ));
+            QPoint currentKeyPos = QPoint(rect.x() + UIConstants::SecondSizeInPixels*currentKey.GetPosition(), rect.y() + rect.height() - ( currentKeyNormalizedValue * rect.height() ));
             keyPoints.push_back(currentKeyPos);
         }
 
@@ -82,6 +76,12 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
                     painter->drawEllipse(keyPoints[keyPointIndex], 4, 4);
                 }
             }
+
+            painter->setPen(Qt::yellow);
+            int tenthSecondSizeInPixels = UIConstants::SecondSizeInPixels / 10;
+            int xPos = (inMousePos.x() / tenthSecondSizeInPixels) * tenthSecondSizeInPixels;
+            painter->drawLine(xPos, rect.y(), xPos, rect.y() + rect.height());
+            painter->drawEllipse(QPoint(xPos, inMousePos.y()), 4, 4);
         }
     }
 
