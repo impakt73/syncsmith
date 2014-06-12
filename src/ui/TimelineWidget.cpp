@@ -7,7 +7,7 @@ TimelineWidget::TimelineWidget(QWidget *parent)
     , mScrollOffset(0.0)
     , mPlaybackPositionInSeconds(0.0)
     , mUserPlaybackPositionOffset(0.0)
-    , mLengthInSeconds(0.0)
+    , mLengthInSeconds(100.0)
 {
     setMouseTracking(true);
 }

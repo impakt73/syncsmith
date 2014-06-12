@@ -1,4 +1,5 @@
 #include <ui/TrackListView.h>
+#include <QtGui>
 
 
 TrackListView::TrackListView(QWidget *parent)
@@ -11,4 +12,9 @@ TrackListView::TrackListView(QWidget *parent)
 TrackListView::~TrackListView()
 {
 
+}
+
+void TrackListView::keyPressEvent(QKeyEvent *event)
+{
+    event->ignore();
 }
