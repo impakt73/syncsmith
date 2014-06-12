@@ -20,7 +20,7 @@ void FloatTrackEditor::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
-    TrackUtils::RenderTrackBackground(&painter, this->rect(), mTrack);
+    TrackUtils::RenderTrackBackground(&painter, this->rect(), true);
     TrackUtils::RenderFloatTrack(&painter, this->rect(), mTrack, true, mLastMousePosition);
 }
 

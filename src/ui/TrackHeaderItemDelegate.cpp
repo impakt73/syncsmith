@@ -19,7 +19,7 @@ void TrackHeaderItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     const TrackListModel* model = static_cast<const TrackListModel*>(index.model());
     const Track* track = model->GetSyncContext()->GetTrack(index.row());
 
-    TrackUtils::RenderTrackBackground(painter, option.rect, track);
+    TrackUtils::RenderTrackBackground(painter, option.rect, option.state & QStyle::State_Selected);
 
     if(track->GetType() == kTrackType_Float)
     {
@@ -34,6 +34,8 @@ QSize TrackHeaderItemDelegate::sizeHint(const QStyleOptionViewItem &option, cons
 
 QWidget *TrackHeaderItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    // Edit trigger is also commented out
+    /*
     const TrackListModel* model = static_cast<const TrackListModel*>(index.model());
     const Track* track = model->GetSyncContext()->GetTrack(index.row());
 
@@ -72,6 +74,7 @@ QWidget *TrackHeaderItemDelegate::createEditor(QWidget *parent, const QStyleOpti
 
         return editorWidget;
     }
+    */
 }
 
 void TrackHeaderItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const

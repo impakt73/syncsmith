@@ -27,6 +27,7 @@ public:
     const Track* GetTrack(unsigned int inTrackIndex) const;
 
     Track* AddTrack(const std::string& inTrackName, eTrackType inTrackType);
+    void RemoveTrack(unsigned int inTrackIndex);
 
 private:
     std::map<std::string, Track*> mTracks;

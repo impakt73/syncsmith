@@ -91,4 +91,15 @@ Track* SyncContext::AddTrack(const std::string& inTrackName, eTrackType inTrackT
     return nullptr;
 }
 
+void SyncContext::RemoveTrack(unsigned int inTrackIndex)
+{
+    std::vector<Track*>::iterator trackIterator = mTrackList.begin() + inTrackIndex;
+    if(trackIterator != mTrackList.end())
+    {
+        std::map<std::string, Track*>::iterator mapTrackIterator = mTracks.find((*trackIterator)->GetName());
+        mTrackList.erase(trackIterator);
+        mTracks.erase(mapTrackIterator);
+    }
+}
+
 

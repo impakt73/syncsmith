@@ -20,6 +20,7 @@ public:
     QFlags<Qt::ItemFlag> flags(const QModelIndex &index) const;
 
     void addTrack(const std::string& inTrackName, eTrackType inTrackType);
+    void removeTrack(unsigned int inTrackIndex);
     void SetSyncContext(SyncContext* inSyncContext) { mSyncContext = inSyncContext; }
     SyncContext* GetSyncContext(void) { return mSyncContext; }
     const SyncContext* GetSyncContext(void) const { return mSyncContext; }

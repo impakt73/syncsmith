@@ -3,7 +3,7 @@
 #include <ui/UIConstants.h>
 #include <core/FloatTrack.h>
 
-void TrackUtils::RenderTrackBackground(QPainter *painter, const QRect &rect, const Track *inTrack)
+void TrackUtils::RenderTrackBackground(QPainter *painter, const QRect &rect, bool inIsSelected)
 {
     painter->save();
     //painter->setPen(Qt::NoPen);
@@ -11,7 +11,7 @@ void TrackUtils::RenderTrackBackground(QPainter *painter, const QRect &rect, con
     painter->setRenderHint(QPainter::Antialiasing, true);
 
     QPen pen;
-    pen.setBrush(Qt::black);
+    pen.setBrush(inIsSelected ? Qt::red : Qt::black);
     pen.setWidth(1);
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
@@ -139,6 +139,8 @@ void TrackUtils::RenderFloatTrackHeader(QPainter *painter, const QRect &rect, co
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, true);
 
+    QFont textFont("Arial", 10);
+    painter->setFont(textFont);
     const QFontMetrics& currentFontMetrics = painter->fontMetrics();
     QString titleText = QString(floatTrack->GetName().c_str());
     QSize titleTextSize = currentFontMetrics.size(0, titleText);
@@ -146,11 +148,11 @@ void TrackUtils::RenderFloatTrackHeader(QPainter *painter, const QRect &rect, co
 
     QString minText = QString("Min: ") + QString::number(floatTrack->GetMinValue());
     QSize minTextSize = currentFontMetrics.size(0, minText);
-    QPoint minTextPos = QPoint(rect.x() + rect.width()/2 - minTextSize.width()/2, titleTextPos.y() + minTextSize.height()*2);
+    QPoint minTextPos = QPoint(rect.x() + rect.width()/2 - minTextSize.width()/2, titleTextPos.y() + minTextSize.height());
 
     QString maxText = QString("Max: ") + QString::number(floatTrack->GetMaxValue());
     QSize maxTextSize = currentFontMetrics.size(0, maxText);
-    QPoint maxTextPos = QPoint(rect.x() + rect.width()/2 - maxTextSize.width()/2, minTextPos.y() + maxTextSize.height()*2);
+    QPoint maxTextPos = QPoint(rect.x() + rect.width()/2 - maxTextSize.width()/2, minTextPos.y() + maxTextSize.height());
 
     painter->drawText(titleTextPos, titleText);
     painter->drawText(minTextPos, minText);

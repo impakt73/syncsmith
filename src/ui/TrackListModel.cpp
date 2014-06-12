@@ -40,3 +40,10 @@ void TrackListModel::addTrack(const std::string& inTrackName, eTrackType inTrack
     endInsertRows();
 }
 
+void TrackListModel::removeTrack(unsigned int inTrackIndex)
+{
+    beginRemoveRows(QModelIndex(), inTrackIndex, inTrackIndex);
+    mSyncContext->RemoveTrack(inTrackIndex);
+    endRemoveRows();
+}
+

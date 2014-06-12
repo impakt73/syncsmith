@@ -12,5 +12,6 @@ public:
     ~TrackHeaderListView();
 
 private:
+    void keyPressEvent(QKeyEvent *event);
     TrackHeaderItemDelegate mItemDelegate;
 };

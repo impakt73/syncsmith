@@ -43,6 +43,9 @@
           <height>22</height>
          </size>
         </property>
+        <property name="placeholderText">
+         <string>Track Filter</string>
+        </property>
        </widget>
       </item>
       <item>

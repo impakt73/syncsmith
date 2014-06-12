@@ -7,7 +7,7 @@ class Track;
 class TrackUtils
 {
 public:
-    static void RenderTrackBackground(QPainter *painter, const QRect &rect, const Track* inTrack);
+    static void RenderTrackBackground(QPainter *painter, const QRect &rect, bool inIsSelected);
     static void RenderFloatTrack(QPainter *painter, const QRect &rect, const Track* inTrack, bool inIsEditMode, const QPoint& inMousePos);
     static void RenderFloatTrackHeader(QPainter *painter, const QRect &rect, const Track* inTrack);
 

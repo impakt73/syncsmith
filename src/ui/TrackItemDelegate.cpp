@@ -22,7 +22,7 @@ void TrackItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     const TrackListModel* model = static_cast<const TrackListModel*>(index.model());
     const Track* track = model->GetSyncContext()->GetTrack(index.row());
 
-    TrackUtils::RenderTrackBackground(painter, option.rect, track);
+    TrackUtils::RenderTrackBackground(painter, option.rect, option.state & QStyle::State_Selected);
 
     if(track->GetType() == kTrackType_Float)
     {
