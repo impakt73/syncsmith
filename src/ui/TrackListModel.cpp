@@ -36,8 +36,6 @@ QFlags<Qt::ItemFlag> TrackListModel::flags(const QModelIndex &index) const
 void TrackListModel::addFloatTrack()
 {
     beginInsertRows(QModelIndex(), 0, 0);
-    mSyncContext->AddTrack("Test Float Track 1", kTrackType_Float);
-    mSyncContext->AddTrack("Test Float Track 2", kTrackType_Float);
-    mSyncContext->AddTrack("Test Float Track 3", kTrackType_Float);
+    mSyncContext->AddTrack("Intro.CubeRoll", kTrackType_Float);
     endInsertRows();
 }

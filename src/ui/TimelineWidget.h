@@ -12,6 +12,7 @@ public:
 
     inline double scrollOffset() const { return mScrollOffset; }
     inline double length() const { return mLengthInSeconds; }
+    inline double userPlaybackPosition() const { return mUserPlaybackPositionOffset; }
 
 public slots:
     void updateScrollOffset(double inScrollOffset);
@@ -20,8 +21,9 @@ public slots:
 
 private:
     void paintEvent(QPaintEvent * event);
+    void mouseMoveEvent(QMouseEvent *event);
     double mScrollOffset; // In Seconds
     double mPlaybackPositionInSeconds;
-    double mPlaybackPositionOffset;
+    double mUserPlaybackPositionOffset;
     double mLengthInSeconds;
 };

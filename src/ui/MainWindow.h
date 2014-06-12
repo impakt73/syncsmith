@@ -31,6 +31,7 @@ private slots:
     void on_action_Send_Message_triggered();
 
     void on_position_changed(double inNewPosition);
+    void on_hscroll(int inScrollPos);
 
 private:
     void keyPressEvent(QKeyEvent* keycode);

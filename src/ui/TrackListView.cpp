@@ -5,7 +5,7 @@ TrackListView::TrackListView(QWidget *parent)
     : QListView(parent)
 {
     setItemDelegate(&mItemDelegate);
-    setEditTriggers(QListView::CurrentChanged);
+    setEditTriggers(QListView::SelectedClicked);
 }
 
 TrackListView::~TrackListView()

@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     listView2->setModel(&mTrackModel);
 
     connect(listView->verticalScrollBar(), &QScrollBar::valueChanged, listView2->verticalScrollBar(), &QScrollBar::setValue);
-    //connect(listView->horizontalScrollBar(), &QScrollBar::valueChanged, timeline, &TimelineWidget::updateOffset);
+    connect(listView->horizontalScrollBar(), &QScrollBar::sliderMoved, this, &MainWindow::on_hscroll);
 
     connect(&mSyncServer, &SyncServer::PositionChanged, this, &MainWindow::on_position_changed);
 
@@ -144,10 +144,16 @@ void MainWindow::on_position_changed(double inNewPosition)
     TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
     QListView* listView = this->findChild<QListView*>("listView");
     qDebug() << "Current Time In Seconds: " << inNewPosition;
-    int pixelPos = inNewPosition * UIConstants::SecondSizeInPixels;
-    timeline->updateScrollOffset(inNewPosition);
-    //timeline->scroll(-pixelPos, 0);
-    listView->horizontalScrollBar()->setValue(pixelPos);
+    int pixelPos = (float)inNewPosition * (float)UIConstants::SecondSizeInPixels;
+    timeline->setPlaybackPosition(inNewPosition);
+    listView->horizontalScrollBar()->setValue(timeline->scrollOffset() * UIConstants::SecondSizeInPixels);
+}
+
+void MainWindow::on_hscroll(int inScrollPos)
+{
+    TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
+    float scrollPos = (float)inScrollPos / (float)UIConstants::SecondSizeInPixels;
+    timeline->updateScrollOffset(scrollPos);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* keycode)
@@ -155,7 +161,9 @@ void MainWindow::keyPressEvent(QKeyEvent* keycode)
     if(keycode->key() == Qt::Key_Space)
     {
         keycode->accept();
-        mSyncServer.OnToggleAction();
+
+        TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
+        mSyncServer.OnToggleAction(timeline->userPlaybackPosition());
     }
     else
     {

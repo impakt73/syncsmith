@@ -108,7 +108,7 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
                     QFontMetrics metrics(currentFont);
                     QString text = QString::number(floatTrack->GetKey(keyPointIndex).GetData());
                     QSize textSize = metrics.size(0, text);
-                    QPoint textOffset = QPoint(8, textSize.height() / 4.0f);
+                    QPoint textOffset = QPoint(8, 4);
                     painter->drawText(clampedMousePos + textOffset, text);
 
                     break;
@@ -127,6 +127,34 @@ void TrackUtils::RenderFloatTrack(QPainter *painter, const QRect &rect, const Tr
         painter->drawLine(xPos, rect.y(), xPos, rect.y() + rect.height());
         painter->drawEllipse(clampedMousePos, 4, 4);
     }
+
+    painter->restore();
+}
+
+void TrackUtils::RenderFloatTrackHeader(QPainter *painter, const QRect &rect, const Track *inTrack)
+{
+    Q_ASSERT(inTrack->GetType() == kTrackType_Float);
+    const FloatTrack* floatTrack = static_cast<const FloatTrack*>(inTrack);
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing, true);
+
+    const QFontMetrics& currentFontMetrics = painter->fontMetrics();
+    QString titleText = QString(floatTrack->GetName().c_str());
+    QSize titleTextSize = currentFontMetrics.size(0, titleText);
+    QPoint titleTextPos = QPoint(rect.x() + rect.width()/2 - titleTextSize.width()/2, rect.y() + titleTextSize.height()*2);
+
+    QString minText = QString("Min: ") + QString::number(floatTrack->GetMinValue());
+    QSize minTextSize = currentFontMetrics.size(0, minText);
+    QPoint minTextPos = QPoint(rect.x() + rect.width()/2 - minTextSize.width()/2, titleTextPos.y() + minTextSize.height()*2);
+
+    QString maxText = QString("Max: ") + QString::number(floatTrack->GetMaxValue());
+    QSize maxTextSize = currentFontMetrics.size(0, maxText);
+    QPoint maxTextPos = QPoint(rect.x() + rect.width()/2 - maxTextSize.width()/2, minTextPos.y() + maxTextSize.height()*2);
+
+    painter->drawText(titleTextPos, titleText);
+    painter->drawText(minTextPos, minText);
+    painter->drawText(maxTextPos, maxText);
 
     painter->restore();
 }

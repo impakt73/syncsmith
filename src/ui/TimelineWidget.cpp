@@ -5,11 +5,11 @@
 TimelineWidget::TimelineWidget(QWidget *parent)
     : QWidget(parent)
     , mScrollOffset(0.0)
-    , mPlaybackPositionInSeconds(8.0)
-    , mPlaybackPositionOffset(0.0)
+    , mPlaybackPositionInSeconds(0.0)
+    , mUserPlaybackPositionOffset(0.0)
     , mLengthInSeconds(0.0)
 {
-    //setAttribute(Qt::WA_OpaquePaintEvent);
+    setMouseTracking(true);
 }
 
 TimelineWidget::~TimelineWidget()
@@ -20,19 +20,21 @@ TimelineWidget::~TimelineWidget()
 void TimelineWidget::updateScrollOffset(double inScrollOffset)
 {
     mScrollOffset = inScrollOffset;
-    repaint();
+    update();
 }
 
 void TimelineWidget::setPlaybackPosition(double inSeconds)
 {
-    mPlaybackPositionInSeconds = inSeconds;
-    repaint();
+    mPlaybackPositionInSeconds = qMin(inSeconds, mLengthInSeconds);
+    int scrollAmount = qMax(mPlaybackPositionInSeconds * UIConstants::SecondSizeInPixels - rect().width()/2, 0.0);
+    mScrollOffset = (float)scrollAmount / (float)UIConstants::SecondSizeInPixels;
+    update();
 }
 
 void TimelineWidget::setLength(double inSeconds)
 {
     mLengthInSeconds = inSeconds;
-    repaint();
+    update();
 }
 
 void TimelineWidget::paintEvent(QPaintEvent *event)
@@ -122,4 +124,24 @@ void TimelineWidget::paintEvent(QPaintEvent *event)
 
     painter.drawPolygon(trianglePoints, 3, Qt::WindingFill);
     */
+}
+
+void TimelineWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if(event->buttons() & Qt::LeftButton)
+    {
+        int tenthSecondSizeInPixels = UIConstants::SecondSizeInPixels / 10;
+        int scrollOffsetInPixels = mScrollOffset * UIConstants::SecondSizeInPixels;
+        int xPos = (qMin(rect().x() + rect().width() + scrollOffsetInPixels, qMax(rect().x(), event->x() + scrollOffsetInPixels)) / tenthSecondSizeInPixels) * tenthSecondSizeInPixels;
+
+        float playbackPosition = ((float)xPos / (float)UIConstants::SecondSizeInPixels);
+        mUserPlaybackPositionOffset = playbackPosition;
+
+        mPlaybackPositionInSeconds = qMin(mUserPlaybackPositionOffset, mLengthInSeconds);
+        update();
+
+        event->accept();
+    }
+
+    event->ignore();
 }

@@ -51,7 +51,7 @@ void SyncServer::BroadcastMessage(const QString& inMessage)
     }
 }
 
-void SyncServer::OnToggleAction()
+void SyncServer::OnToggleAction(double inStartPos)
 {
     if(mTimer.isActive())
     {
@@ -59,9 +59,10 @@ void SyncServer::OnToggleAction()
     }
     else
     {
+        mStartTimeOffset = inStartPos;
         mStartTime = QDateTime::currentMSecsSinceEpoch();
-        mContext.SetPosition(static_cast<double>(0));
-        emit PositionChanged(0);
+        mContext.SetPosition(mStartTimeOffset);
+        emit PositionChanged(mStartTimeOffset);
 
         mTimer.start();
     }
@@ -94,7 +95,7 @@ void SyncServer::OnClientDisconnected()
 
 void SyncServer::OnTimerTicked()
 {
-    double currentTimeInSeconds = static_cast<double>(QDateTime::currentMSecsSinceEpoch() - mStartTime) / 1000.0;
+    double currentTimeInSeconds = (static_cast<double>(QDateTime::currentMSecsSinceEpoch() - mStartTime) / 1000.0) + mStartTimeOffset;
     mContext.SetPosition(currentTimeInSeconds);
 
     emit PositionChanged(currentTimeInSeconds);

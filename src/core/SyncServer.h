@@ -15,6 +15,7 @@ public:
         , mServer(this)
         , mTimer(this)
         , mStartTime(0)
+        , mStartTimeOffset(0.0)
     {
         mTimer.setInterval(16);
         mTimer.setTimerType(Qt::PreciseTimer);
@@ -35,7 +36,7 @@ public:
     inline void Release(void) { delete this; }
 
 public slots:
-    void OnToggleAction(void);
+    void OnToggleAction(double inStartPos);
 
 private slots:
     void OnNewConnection(void);
@@ -52,4 +53,5 @@ private:
     std::map<QString, QTcpSocket*> mClients;
     QTimer mTimer;
     qint64 mStartTime;
+    double mStartTimeOffset;
 };
