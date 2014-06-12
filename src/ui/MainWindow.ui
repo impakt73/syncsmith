@@ -170,11 +170,18 @@
    </widget>
    <widget class="QMenu" name="menu_Test">
     <property name="title">
-     <string>&amp;Test</string>
+     <string>Test</string>
     </property>
     <addaction name="action_Send_Message"/>
    </widget>
+   <widget class="QMenu" name="menu_Tracks">
+    <property name="title">
+     <string>&amp;Tracks</string>
+    </property>
+    <addaction name="action_Add_Track"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Tracks"/>
    <addaction name="menu_Audio"/>
    <addaction name="menu_Test"/>
   </widget>
@@ -212,6 +219,11 @@
   <action name="action_Send_Message">
    <property name="text">
     <string>&amp;Send Message</string>
+   </property>
+  </action>
+  <action name="action_Add_Track">
+   <property name="text">
+    <string>&amp;Add Track</string>
    </property>
   </action>
  </widget>

@@ -57,6 +57,9 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     ui/MainWindow.ui
     ui/MainWindow.h
     ui/MainWindow.cpp
+    ui/AddTrackDialog.ui
+    ui/AddTrackDialog.h
+    ui/AddTrackDialog.cpp
     ui/TrackItemDelegate.h
     ui/TrackItemDelegate.cpp
     ui/TrackHeaderItemDelegate.h

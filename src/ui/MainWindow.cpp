@@ -1,6 +1,7 @@
 #include <ui/MainWindow.h>
 #include "ui_MainWindow.h"
 #include <ui/UIConstants.h>
+#include <ui/AddTrackDialog.h>
 
 #include <QScrollBar>
 
@@ -18,8 +19,6 @@ MainWindow::MainWindow(QWidget *parent) :
     mModel = new QStringListModel(mNumbers);
 
     mTrackModel.SetSyncContext(mSyncServer.GetSyncContext());
-
-    mTrackModel.addFloatTrack();
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -168,5 +167,14 @@ void MainWindow::keyPressEvent(QKeyEvent* keycode)
     else
     {
         keycode->ignore();
+    }
+}
+
+void MainWindow::on_action_Add_Track_triggered()
+{
+    AddTrackDialog* addTrackDialog = new AddTrackDialog(this);
+    if(addTrackDialog->exec() == QDialog::Accepted)
+    {
+        mTrackModel.addTrack(addTrackDialog->trackName().toStdString(), addTrackDialog->trackType());
     }
 }

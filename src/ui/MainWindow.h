@@ -33,6 +33,8 @@ private slots:
     void on_position_changed(double inNewPosition);
     void on_hscroll(int inScrollPos);
 
+    void on_action_Add_Track_triggered();
+
 private:
     void keyPressEvent(QKeyEvent* keycode);
     Ui::MainWindow *ui;

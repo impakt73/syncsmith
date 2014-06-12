@@ -24,16 +24,11 @@ void FloatTrackEditor::paintEvent(QPaintEvent *event)
     TrackUtils::RenderFloatTrack(&painter, this->rect(), mTrack, true, mLastMousePosition);
 }
 
-inline float clamp(float x, float a, float b)
-{
-    return x < a ? a : (x > b ? b : x);
-}
-
 void FloatTrackEditor::mouseMoveEvent(QMouseEvent *event)
 {
     if(mIsEditingKey)
     {
-        int yValue = clamp(event->pos().y(), rect().y(), rect().y() + rect().height());
+        int yValue = qBound(event->pos().y(), rect().y(), rect().y() + rect().height());
         mLastMousePosition = QPoint(mLastMousePosition.x(), yValue);
         QCursor::setPos(mapToGlobal(mLastMousePosition));
 

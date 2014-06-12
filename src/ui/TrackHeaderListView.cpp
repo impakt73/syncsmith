@@ -6,6 +6,7 @@ TrackHeaderListView::TrackHeaderListView(QWidget *parent)
     : QListView(parent)
 {
     setItemDelegate(&mItemDelegate);
+    setEditTriggers(QListView::SelectedClicked);
 }
 
 TrackHeaderListView::~TrackHeaderListView()

@@ -33,9 +33,10 @@ QFlags<Qt::ItemFlag> TrackListModel::flags(const QModelIndex &index) const
     return (Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
 }
 
-void TrackListModel::addFloatTrack()
+void TrackListModel::addTrack(const std::string& inTrackName, eTrackType inTrackType)
 {
     beginInsertRows(QModelIndex(), 0, 0);
-    mSyncContext->AddTrack("Intro.CubeRoll", kTrackType_Float);
+    mSyncContext->AddTrack(inTrackName, inTrackType);
     endInsertRows();
 }
+

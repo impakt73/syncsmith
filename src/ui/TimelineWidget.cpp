@@ -7,7 +7,7 @@ TimelineWidget::TimelineWidget(QWidget *parent)
     , mScrollOffset(0.0)
     , mPlaybackPositionInSeconds(0.0)
     , mUserPlaybackPositionOffset(0.0)
-    , mLengthInSeconds(100.0)
+    , mLengthInSeconds(20.0)
 {
     setMouseTracking(true);
 }
@@ -56,7 +56,7 @@ void TimelineWidget::paintEvent(QPaintEvent *event)
     int xLeft = (mScrollOffset * UIConstants::SecondSizeInPixels) - 1; // Subtract 1 for anti-aliasing
     painter.translate(-xLeft, 0.0);
 
-    for(int x = 0; x < mLengthInSeconds*UIConstants::SecondSizeInPixels; x += sTickStepInPixels)
+    for(int x = 0; x <= mLengthInSeconds*UIConstants::SecondSizeInPixels; x += sTickStepInPixels)
     {
         int index = (x / sTickStepInPixels);
         if(index % 10 == 0)
