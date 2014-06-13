@@ -83,7 +83,7 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     core/FloatTrack.h
     core/FloatTrack.cpp
     core/TrackKey.h
-    ../lib/SyncContext.h
+    core/SyncContext.h
     core/SyncContext.cpp
     core/SyncServer.h
     core/SyncServer.cpp
@@ -94,8 +94,7 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
 ADD_SOURCE( LIB_SRC "lib" "" LIB_SRC_FILES
     ISyncSmithServer.h
     SyncSmith.h
-    SyncSmith.cpp
-    SyncContext.h )
+    SyncSmith.cpp )
 
 ADD_EXECUTABLE( ${PROJECT_NAME} WIN32 ${SRC_FILES} )
 ADD_LIBRARY( ${PROJECT_NAME}_Connector SHARED ${SRC_FILES} ${LIB_SRC_FILES} )

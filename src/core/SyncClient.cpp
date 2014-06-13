@@ -70,11 +70,19 @@ void SyncClient::SendPacket(SyncPacket *inPacket)
         break;
     case kSyncPacketType_RemoveKey:
         break;
+    case kSyncPacketType_Seek:
+    {
+        SyncPacket_Seek* seekPacket = static_cast<SyncPacket_Seek*>(inPacket);
+        output << seekPacket->Position;
+        break;
+    }
     }
 
     output.device()->seek(0);
     output << (quint16)(block.size() - sizeof(quint16));
     mSocket.write(block);
+
+    delete inPacket;
 }
 
 void SyncClient::on_connected()
@@ -213,5 +221,30 @@ void SyncClient::on_data_received()
         break;
     case kSyncPacketType_RemoveKey:
         break;
+    case kSyncPacketType_Seek:
+    {
+        SyncPacket_Seek* packet = new SyncPacket_Seek();
+        packet->Type = packetType;
+        dataStream >> packet->Position;
+
+        emit PacketReceived(packet);
+        break;
+    }
+    case kSyncPacketType_Play:
+    {
+        SyncPacket_Play* packet = new SyncPacket_Play();
+        packet->Type = packetType;
+
+        emit PacketReceived(packet);
+        break;
+    }
+    case kSyncPacketType_Pause:
+    {
+        SyncPacket_Pause* packet = new SyncPacket_Pause();
+        packet->Type = packetType;
+
+        emit PacketReceived(packet);
+        break;
+    }
     }
 }

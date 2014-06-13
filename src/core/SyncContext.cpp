@@ -1,4 +1,4 @@
-#include <SyncContext.h>
+#include <core/SyncContext.h>
 #include <core/Track.h>
 #include <core/FloatTrack.h>
 #include <QtMath>

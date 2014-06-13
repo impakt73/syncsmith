@@ -1,5 +1,5 @@
 #include <ui/TrackListModel.h>
-#include <SyncContext.h>
+#include <core/SyncContext.h>
 #include <core/FloatTrack.h>
 #include <QtCore>
 #include <ui/TrackHandle.h>

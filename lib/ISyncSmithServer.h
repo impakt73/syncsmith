@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SyncContext.h>
+#include <core/SyncContext.h>
 
 class ISyncSmithServer
 {

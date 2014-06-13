@@ -12,7 +12,12 @@ enum eSyncPacketType
     kSyncPacketType_RemoveTrack,
     kSyncPacketType_AddKey,
     kSyncPacketType_ModifyKey,
-    kSyncPacketType_RemoveKey
+    kSyncPacketType_RemoveKey,
+    kSyncPacketType_Seek,
+    kSyncPacketType_Play,
+    kSyncPacketType_Pause,
+
+    kSyncPacketType_Response
 };
 
 class SyncPacket
@@ -52,6 +57,26 @@ class SyncPacket_AddKey : public SyncPacket
 public:
     QString TrackName;
     eTrackType TrackType;
+};
+
+class SyncPacket_Seek : public SyncPacket
+{
+public:
+    qreal Position;
+};
+
+class SyncPacket_Play : public SyncPacket
+{
+};
+
+class SyncPacket_Pause : public SyncPacket
+{
+};
+
+class SyncPacket_Response : public SyncPacket
+{
+public:
+    bool Result;
 };
 
 

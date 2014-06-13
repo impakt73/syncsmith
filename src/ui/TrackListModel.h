@@ -2,7 +2,7 @@
 
 #include <QAbstractListModel>
 #include <core/Track.h>
-#include <SyncContext.h>
+#include <core/SyncContext.h>
 
 class TrackListModel : public QAbstractListModel
 {
