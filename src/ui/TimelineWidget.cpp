@@ -76,11 +76,16 @@ void TimelineWidget::paintEvent(QPaintEvent *event)
             painter.drawLine(x, rectHeight - lineHeight, x, rectHeight);
         }
     }
-
-    painter.setBrush(Qt::yellow);
+    int userXPos = (mUserPlaybackPositionOffset * UIConstants::SecondSizeInPixels);
+    int triangleHeight = (lineHeight * 1.5f);
+    QPoint userTrianglePoints[] =
+    {
+        { userXPos, rectHeight },
+        { userXPos + 5, rectHeight - triangleHeight },
+        { userXPos - 5, rectHeight - triangleHeight }
+    };
 
     int xPos = (mPlaybackPositionInSeconds * UIConstants::SecondSizeInPixels);
-    int triangleHeight = (lineHeight * 1.5f);
     QPoint trianglePoints[] =
     {
         { xPos, rectHeight },
@@ -88,6 +93,10 @@ void TimelineWidget::paintEvent(QPaintEvent *event)
         { xPos - 5, rectHeight - triangleHeight }
     };
 
+    painter.setBrush(Qt::gray);
+    painter.drawPolygon(userTrianglePoints, 3, Qt::WindingFill);
+
+    painter.setBrush(Qt::yellow);
     painter.drawPolygon(trianglePoints, 3, Qt::WindingFill);
 /*
     for(int x = 1; x < rect.width()-1; x += 8)
