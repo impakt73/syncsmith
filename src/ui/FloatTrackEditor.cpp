@@ -17,6 +17,7 @@ FloatTrackEditor::FloatTrackEditor(Track* inTrack, SyncClient* inSyncClient, QWi
     setAttribute(Qt::WA_OpaquePaintEvent);
     setFocusPolicy(Qt::StrongFocus);
 
+    // This has to be done because for some reason, you cannot call the send packet functions directly from event handlers, that results in segfaults so the call must be triggered indirectly through signals
     MainWindow* mainWindow = MainWindow::GetInstance();
     connect(this, &FloatTrackEditor::KeyAdded, mainWindow, &MainWindow::OnKeyAdded);
     connect(this, &FloatTrackEditor::KeyModified, mainWindow, &MainWindow::OnKeyModified);
