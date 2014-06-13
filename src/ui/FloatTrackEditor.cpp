@@ -3,10 +3,12 @@
 #include <core/Track.h>
 #include <ui/UIConstants.h>
 #include <core/FloatTrack.h>
+#include <ui/MainWindow.h>
 
-FloatTrackEditor::FloatTrackEditor(Track* inTrack, QWidget *parent)
+FloatTrackEditor::FloatTrackEditor(Track* inTrack, SyncClient* inSyncClient, QWidget *parent)
     : QWidget(parent)
     , mTrack(inTrack)
+    , mSyncClient(inSyncClient)
     , mLastMousePosition(0,0)
     , mIsEditingKey(false)
 {
@@ -14,6 +16,11 @@ FloatTrackEditor::FloatTrackEditor(Track* inTrack, QWidget *parent)
     setCursor(Qt::BlankCursor);
     setAttribute(Qt::WA_OpaquePaintEvent);
     setFocusPolicy(Qt::StrongFocus);
+
+    MainWindow* mainWindow = MainWindow::GetInstance();
+    connect(this, &FloatTrackEditor::KeyAdded, mainWindow, &MainWindow::OnKeyAdded);
+    connect(this, &FloatTrackEditor::KeyModified, mainWindow, &MainWindow::OnKeyModified);
+    connect(this, &FloatTrackEditor::KeyRemoved, mainWindow, &MainWindow::OnKeyRemoved);
 }
 
 void FloatTrackEditor::paintEvent(QPaintEvent *event)
@@ -26,6 +33,8 @@ void FloatTrackEditor::paintEvent(QPaintEvent *event)
 
 void FloatTrackEditor::mouseMoveEvent(QMouseEvent *event)
 {
+    event->accept();
+
     if(mIsEditingKey)
     {
         int yValue = qBound(event->pos().y(), rect().y(), rect().y() + rect().height());
@@ -40,6 +49,8 @@ void FloatTrackEditor::mouseMoveEvent(QMouseEvent *event)
         if(floatTrack->GetKeyIndex(keyPosition, &keyIndex))
         {
             floatTrack->GetKey(keyIndex).SetData(dataValue);
+
+            emit KeyModified(floatTrack, keyPosition, dataValue);
         }
     }
     else
@@ -48,13 +59,13 @@ void FloatTrackEditor::mouseMoveEvent(QMouseEvent *event)
     }
 
     update();
-
-    event->accept();
 }
 
 void FloatTrackEditor::mousePressEvent(QMouseEvent *event)
 {
     mLastMousePosition = event->pos();
+
+    event->accept();
 
     // Cut the position down into increments of tenths of a second
     double keyPosition = (mLastMousePosition.x() / (UIConstants::SecondSizeInPixels / 10)) / 10.0f;
@@ -66,10 +77,15 @@ void FloatTrackEditor::mousePressEvent(QMouseEvent *event)
         if(event->button() == Qt::RightButton)
         {
             floatTrack->RemoveKey(keyIndex);
+
+            emit KeyRemoved(floatTrack, keyPosition);
         }
         else
         {
             floatTrack->GetKey(keyIndex).SetData(dataValue);
+
+            emit KeyModified(floatTrack, keyPosition, dataValue);
+
             mIsEditingKey = true;
         }
     }
@@ -78,13 +94,14 @@ void FloatTrackEditor::mousePressEvent(QMouseEvent *event)
         if(event->button() == Qt::LeftButton)
         {
             floatTrack->AddKey(keyPosition, dataValue);
+
+            emit KeyAdded(floatTrack, keyPosition, dataValue);
+
             mIsEditingKey = true;
         }
     }
 
     update();
-
-    event->accept();
 }
 
 void FloatTrackEditor::mouseReleaseEvent(QMouseEvent *event)

@@ -4,21 +4,34 @@
 #include <ui/AddTrackDialog.h>
 
 #include <QScrollBar>
+#include <QMessageBox>
+#include <core/FloatTrack.h>
+
+MainWindow* MainWindow::sInstance = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     mTrackItemDelegate(this),
     mDecoder(this),
-    mSyncServer(this),
     mTrackModel(this),
+    mIsPlaying(false),
+    mTimer(this),
+    mStartTimeOffset(0.0),
     ui(new Ui::MainWindow)
 {
+    sInstance = this;
+
     ui->setupUi(this);
+
+    mTimer.setInterval(16);
+    mTimer.setTimerType(Qt::PreciseTimer);
+    mStartTime = QDateTime::currentMSecsSinceEpoch();
+    connect(&mTimer, &QTimer::timeout, this, &MainWindow::on_timer_tick);
 
     mNumbers << "One" << "Two" << "Three" << "Four" << "Five" << "Six" << "Seven" << "Eight" << "Nine" << "Ten" << "Eleven" << "Twelve";
     mModel = new QStringListModel(mNumbers);
 
-    mTrackModel.SetSyncContext(mSyncServer.GetSyncContext());
+    mTrackModel.SetSyncContext(&mSyncContext);
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -31,18 +44,54 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(listView->verticalScrollBar(), &QScrollBar::valueChanged, listView2->verticalScrollBar(), &QScrollBar::setValue);
     connect(listView->horizontalScrollBar(), &QScrollBar::sliderMoved, this, &MainWindow::on_hscroll);
 
-    connect(&mSyncServer, &SyncServer::PositionChanged, this, &MainWindow::on_position_changed);
+    //connect(&mSyncServer, &SyncServer::PositionChanged, this, &MainWindow::on_position_changed);
 
-    mSyncServer.Start();
+    //mSyncServer.Start();
+    connect(&mSyncClient, &SyncClient::Connected, this, &MainWindow::on_client_connected);
+    connect(&mSyncClient, &SyncClient::PacketReceived, this, &MainWindow::on_packet_received);
+    mSyncClient.Connect("127.0.0.1", 8000);
 }
 
 MainWindow::~MainWindow()
 {
-    mSyncServer.Stop();
+    //mSyncServer.Stop();
+    mSyncClient.Disconnect();
 
     delete mModel;
 
     delete ui;
+}
+
+void MainWindow::OnKeyAdded(FloatTrack *inFloatTrack, double inPosition, float inData)
+{
+    SyncPacket_AddKey* packet = new SyncPacket_AddKey();
+    packet->Type = kSyncPacketType_AddKey;
+    packet->TrackName = QString::fromStdString(inFloatTrack->GetName());
+    packet->Position = inPosition;
+    packet->Data = inData;
+
+    mSyncClient.SendPacket(packet);
+}
+
+void MainWindow::OnKeyModified(FloatTrack *inFloatTrack, double inPosition, float inData)
+{
+    SyncPacket_ModifyKey* packet = new SyncPacket_ModifyKey();
+    packet->Type = kSyncPacketType_ModifyKey;
+    packet->TrackName = QString::fromStdString(inFloatTrack->GetName());
+    packet->Position = inPosition;
+    packet->Data = inData;
+
+    mSyncClient.SendPacket(packet);
+}
+
+void MainWindow::OnKeyRemoved(FloatTrack *inFloatTrack, double inPosition)
+{
+    SyncPacket_RemoveKey* packet = new SyncPacket_RemoveKey();
+    packet->Type = kSyncPacketType_RemoveKey;
+    packet->TrackName = QString::fromStdString(inFloatTrack->GetName());
+    packet->Position = inPosition;
+
+    mSyncClient.SendPacket(packet);
 }
 
 void MainWindow::on_actionE_xit_triggered()
@@ -135,7 +184,7 @@ void MainWindow::audio_file_error(QAudioDecoder::Error error)
 
 void MainWindow::on_action_Send_Message_triggered()
 {
-    mSyncServer.BroadcastMessage("Hello World!");
+    //mSyncServer.BroadcastMessage("Hello World!");
 }
 
 void MainWindow::on_position_changed(double inNewPosition)
@@ -146,6 +195,7 @@ void MainWindow::on_position_changed(double inNewPosition)
     int pixelPos = (float)inNewPosition * (float)UIConstants::SecondSizeInPixels;
     timeline->setPlaybackPosition(inNewPosition);
     listView->horizontalScrollBar()->setValue(timeline->scrollOffset() * UIConstants::SecondSizeInPixels);
+    mSyncContext.SetPosition(inNewPosition);
 }
 
 void MainWindow::on_hscroll(int inScrollPos)
@@ -162,7 +212,36 @@ void MainWindow::keyPressEvent(QKeyEvent* keycode)
         keycode->accept();
 
         TimelineWidget* timeline = this->findChild<TimelineWidget*>("widget");
-        mSyncServer.OnToggleAction(timeline->userPlaybackPosition());
+        //mSyncServer.OnToggleAction(timeline->userPlaybackPosition());
+
+        if(!mIsPlaying)
+        {
+            SyncPacket_Seek* seekPacket = new SyncPacket_Seek();
+            seekPacket->Type = kSyncPacketType_Seek;
+            seekPacket->Position = timeline->userPlaybackPosition();
+            mSyncClient.SendPacket(seekPacket);
+
+            SyncPacket_Play* packet = new SyncPacket_Play();
+            packet->Type = kSyncPacketType_Play;
+            mSyncClient.SendPacket(packet);
+
+            mStartTimeOffset = timeline->userPlaybackPosition();
+            mStartTime = QDateTime::currentMSecsSinceEpoch();
+
+            mTimer.start();
+
+            mIsPlaying = true;
+        }
+        else
+        {
+            SyncPacket_Pause* packet = new SyncPacket_Pause();
+            packet->Type = kSyncPacketType_Pause;
+            mSyncClient.SendPacket(packet);
+
+            mTimer.stop();
+
+            mIsPlaying = false;
+        }
     }
     else
     {
@@ -175,6 +254,47 @@ void MainWindow::on_action_Add_Track_triggered()
     AddTrackDialog* addTrackDialog = new AddTrackDialog(this);
     if(addTrackDialog->exec() == QDialog::Accepted)
     {
-        mTrackModel.addTrack(addTrackDialog->trackName().toStdString(), addTrackDialog->trackType());
+        std::string trackName = addTrackDialog->trackName().toStdString();
+        eTrackType trackType = addTrackDialog->trackType();
+        mTrackModel.addTrack(trackName, trackType);
+
+        SyncPacket_AddTrack* packet = new SyncPacket_AddTrack();
+        packet->Type = kSyncPacketType_AddTrack;
+        packet->TrackName = QString::fromStdString(trackName);
+        packet->TrackType = trackType;
+
+        mSyncClient.SendPacket(packet);
     }
+}
+
+void MainWindow::on_client_connected()
+{
+    QMessageBox msgBox;
+    msgBox.setText("Connected!");
+    msgBox.exec();
+}
+
+void MainWindow::on_packet_received(SyncPacket* inPacket)
+{
+}
+
+void MainWindow::on_timer_tick()
+{
+    double currentTimeInSeconds = (static_cast<double>(QDateTime::currentMSecsSinceEpoch() - mStartTime) / 1000.0) + mStartTimeOffset;
+    on_position_changed(currentTimeInSeconds);
+}
+
+void MainWindow::on_action_Remove_Selected_Track_triggered()
+{
+    QListView* headerView = this->findChild<QListView*>("listView_2");
+    unsigned int trackIndex = headerView->selectionModel()->currentIndex().row();
+    TrackListModel* modelHandle = static_cast<TrackListModel*>(headerView->model());
+
+    SyncPacket_RemoveTrack* packet = new SyncPacket_RemoveTrack();
+    packet->Type = kSyncPacketType_RemoveTrack;
+    packet->TrackName = QString::fromStdString(mSyncContext.GetTrack(trackIndex)->GetName());
+
+    modelHandle->removeTrack(trackIndex);
+
+    mSyncClient.SendPacket(packet);
 }

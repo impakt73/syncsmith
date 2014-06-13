@@ -56,7 +56,23 @@ class SyncPacket_AddKey : public SyncPacket
 {
 public:
     QString TrackName;
-    eTrackType TrackType;
+    qreal Position;
+    qreal Data;
+};
+
+class SyncPacket_RemoveKey : public SyncPacket
+{
+public:
+    QString TrackName;
+    qreal Position;
+};
+
+class SyncPacket_ModifyKey : public SyncPacket
+{
+public:
+    QString TrackName;
+    qreal Position;
+    qreal Data;
 };
 
 class SyncPacket_Seek : public SyncPacket

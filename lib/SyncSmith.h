@@ -1,9 +1,5 @@
 #pragma once
 
-#include <ISyncSmithServer.h>
-
-#pragma once
-
 // DLL Binding
 
 #if defined(SYNCSMITH_EXPORTS)
@@ -25,4 +21,11 @@
 #endif
 
 
-extern "C" SYNCSMITH_API ISyncSmithServer* CreateSyncSmith(void);
+extern "C" SYNCSMITH_API void ssCreate(int argc, char** argv);
+extern "C" SYNCSMITH_API void ssUpdate(void);
+extern "C" SYNCSMITH_API void ssDestroy(void);
+extern "C" SYNCSMITH_API int ssStartServer(int inPort);
+extern "C" SYNCSMITH_API void ssStopServer(void);
+extern "C" SYNCSMITH_API void ssSetSeekCallback(void (*inCallback)(double));
+extern "C" SYNCSMITH_API float ssGetFloat(const char* inTrackName);
+

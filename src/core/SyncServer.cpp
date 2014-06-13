@@ -1,4 +1,6 @@
 #include <core/SyncServer.h>
+#include <core/Track.h>
+#include <core/FloatTrack.h>
 
 bool SyncServer::Start(int inPort)
 {
@@ -20,11 +22,6 @@ bool SyncServer::Start(int inPort)
 
 void SyncServer::Stop()
 {
-    if(mTimer.isActive())
-    {
-        mTimer.stop();
-    }
-
     if(mServer.isListening())
     {
         mServer.close();
@@ -34,6 +31,7 @@ void SyncServer::Stop()
     qDebug() << "Server Stopped";
 }
 
+/*
 void SyncServer::BroadcastMessage(const QString& inMessage)
 {
     QByteArray block;
@@ -50,41 +48,28 @@ void SyncServer::BroadcastMessage(const QString& inMessage)
         client.second->write(block);
     }
 }
-
-void SyncServer::OnToggleAction(double inStartPos)
-{
-    if(mTimer.isActive())
-    {
-        mTimer.stop();
-    }
-    else
-    {
-        mStartTimeOffset = inStartPos;
-        mStartTime = QDateTime::currentMSecsSinceEpoch();
-        mContext.SetPosition(mStartTimeOffset);
-        emit PositionChanged(mStartTimeOffset);
-
-        mTimer.start();
-    }
-}
+*/
 
 void SyncServer::OnNewConnection()
 {
     QTcpSocket* newClient = mServer.nextPendingConnection();
     QString peerName = newClient->peerAddress().toString() + ":" + QString::number(newClient->peerPort());
     Q_ASSERT(mClients.find(peerName) == mClients.end()); // Make sure this user doesn't already exist
-    mClients[peerName] = newClient;
+    SyncClient* syncClient = new SyncClient(newClient);
+    mClients[peerName] = syncClient;
 
-    connect(newClient, &QTcpSocket::disconnected, this, &SyncServer::OnClientDisconnected);
+    connect(syncClient, &SyncClient::Disconnected, this, &SyncServer::OnClientDisconnected);
+    connect(syncClient, &SyncClient::PacketReceived, this, &SyncServer::OnPacketReceived);
 
     qDebug() << "Client '" << peerName << "' Connected.";
 }
 
 void SyncServer::OnClientDisconnected()
 {
-    QTcpSocket* clientSocket = static_cast<QTcpSocket*>(sender());
+    SyncClient* syncClient = static_cast<SyncClient*>(sender());
+    const QTcpSocket* clientSocket = syncClient->GetSocket();
     QString peerName = clientSocket->peerAddress().toString() + ":" + QString::number(clientSocket->peerPort());
-    std::map<QString, QTcpSocket*>::iterator socketIterator = mClients.find(peerName);
+    std::map<QString, SyncClient*>::iterator socketIterator = mClients.find(peerName);
     Q_ASSERT(socketIterator != mClients.end()); // Make sure the user that is disconnecting already exists
 
     qDebug() << "Client '" << socketIterator->first << "' Disconnected.";
@@ -93,10 +78,86 @@ void SyncServer::OnClientDisconnected()
     mClients.erase(socketIterator);
 }
 
-void SyncServer::OnTimerTicked()
+void SyncServer::OnPacketReceived(SyncPacket *inPacket)
 {
-    double currentTimeInSeconds = (static_cast<double>(QDateTime::currentMSecsSinceEpoch() - mStartTime) / 1000.0) + mStartTimeOffset;
-    mContext.SetPosition(currentTimeInSeconds);
+    qDebug() << "Received Packet!";
 
-    emit PositionChanged(currentTimeInSeconds);
+    switch(inPacket->Type)
+    {
+    case kSyncPacketType_Undefined:
+        break;
+    case kSyncPacketType_Handshake:
+        break;
+    case kSyncPacketType_AddTrack:
+    {
+        SyncPacket_AddTrack* addTrackPacket = static_cast<SyncPacket_AddTrack*>(inPacket);
+        mSyncContext.AddTrack(addTrackPacket->TrackName.toStdString(), addTrackPacket->TrackType);
+
+        qDebug() << "Added New Track With Name " << addTrackPacket->TrackName << " And Type " << addTrackPacket->TrackType;
+        break;
+    }
+    case kSyncPacketType_RenameTrack:
+        break;
+    case kSyncPacketType_RemoveTrack:
+    {
+        SyncPacket_RemoveTrack* removeTrackPacket = static_cast<SyncPacket_RemoveTrack*>(inPacket);
+        mSyncContext.RemoveTrack(removeTrackPacket->TrackName.toStdString());
+
+        qDebug() << "Removed Track With Name " << removeTrackPacket->TrackName;
+        break;
+    }
+    case kSyncPacketType_AddKey:
+    {
+        SyncPacket_AddKey* addKeyPacket = static_cast<SyncPacket_AddKey*>(inPacket);
+        FloatTrack* floatTrack = static_cast<FloatTrack*>(mSyncContext.GetTrack(addKeyPacket->TrackName.toStdString()));
+        floatTrack->AddKey(addKeyPacket->Position, addKeyPacket->Data);
+
+        qDebug() << "Added Key to " << addKeyPacket->TrackName << " at " << addKeyPacket->Position << " with value " << addKeyPacket->Data;
+        break;
+    }
+    case kSyncPacketType_ModifyKey:
+    {
+        SyncPacket_ModifyKey* modifyKeyPacket = static_cast<SyncPacket_ModifyKey*>(inPacket);
+        FloatTrack* floatTrack = static_cast<FloatTrack*>(mSyncContext.GetTrack(modifyKeyPacket->TrackName.toStdString()));
+        unsigned int keyIndex = 0;
+        if(floatTrack->GetKeyIndex(modifyKeyPacket->Position, &keyIndex))
+        {
+            floatTrack->GetKey(keyIndex).SetData(modifyKeyPacket->Data);
+        }
+        qDebug() << "Modified Key on " << modifyKeyPacket->TrackName << " at " << modifyKeyPacket->Position << " to value " << modifyKeyPacket->Data;
+        break;
+    }
+    case kSyncPacketType_RemoveKey:
+    {
+        SyncPacket_RemoveKey* removeKeyPacket = static_cast<SyncPacket_RemoveKey*>(inPacket);
+        FloatTrack* floatTrack = static_cast<FloatTrack*>(mSyncContext.GetTrack(removeKeyPacket->TrackName.toStdString()));
+        unsigned int keyIndex = 0;
+        if(floatTrack->GetKeyIndex(removeKeyPacket->Position, &keyIndex))
+        {
+            floatTrack->RemoveKey(keyIndex);
+        }
+        qDebug() << "Removed Key from " << removeKeyPacket->TrackName << " at " << removeKeyPacket->Position;
+        break;
+    }
+    case kSyncPacketType_Seek:
+    {
+        SyncPacket_Seek* seekPacket = static_cast<SyncPacket_Seek*>(inPacket);
+        if(mSeekCallback != nullptr)
+            mSeekCallback(seekPacket->Position);
+        break;
+    }
+    case kSyncPacketType_Play:
+    {
+        if(mPlayCallback != nullptr)
+            mPlayCallback();
+        break;
+    }
+    case kSyncPacketType_Pause:
+        break;
+    case kSyncPacketType_Response:
+        break;
+
+    }
+
+    delete inPacket;
 }

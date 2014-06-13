@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QWidget>
+#include <core/SyncClient.h>
+#include <core/FloatTrack.h>
 
 class Track;
 
@@ -9,7 +11,7 @@ class FloatTrackEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit FloatTrackEditor(Track* inTrack, QWidget *parent = 0);
+    explicit FloatTrackEditor(Track* inTrack, SyncClient* inSyncClient, QWidget *parent = 0);
     ~FloatTrackEditor() {}
 
     Track* track(void) const { return mTrack; }
@@ -23,11 +25,15 @@ private:
     void keyPressEvent(QKeyEvent *event);
 
     Track* mTrack;
+    SyncClient* mSyncClient;
     QPoint mLastMousePosition;
 
     bool mIsEditingKey;
 
 signals:
     void editingFinished();
+    void KeyAdded(FloatTrack* inFloatTrack, double inPosition, float inData);
+    void KeyModified(FloatTrack* inFloatTrack, double inPosition, float inData);
+    void KeyRemoved(FloatTrack* inFloatTrack, double inPosition);
 
 };

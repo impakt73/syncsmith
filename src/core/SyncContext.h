@@ -27,6 +27,7 @@ public:
     const Track* GetTrack(unsigned int inTrackIndex) const;
 
     Track* AddTrack(const std::string& inTrackName, eTrackType inTrackType);
+    void RemoveTrack(const std::string& inTrackName);
     void RemoveTrack(unsigned int inTrackIndex);
 
 private:

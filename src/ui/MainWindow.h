@@ -6,7 +6,8 @@
 #include <ui/TrackListModel.h>
 #include <QtMultimedia>
 
-#include <core/SyncServer.h>
+#include <core/SyncContext.h>
+#include <core/SyncClient.h>
 
 namespace Ui {
 class MainWindow;
@@ -19,6 +20,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    static MainWindow* GetInstance(void) { return sInstance; }
+
+public slots:
+    void OnKeyAdded(FloatTrack* inFloatTrack, double inPosition, float inData);
+    void OnKeyModified(FloatTrack* inFloatTrack, double inPosition, float inData);
+    void OnKeyRemoved(FloatTrack* inFloatTrack, double inPosition);
 
 private slots:
     void on_actionE_xit_triggered();
@@ -35,6 +43,12 @@ private slots:
 
     void on_action_Add_Track_triggered();
 
+    void on_client_connected();
+    void on_packet_received(SyncPacket* inPacket);
+    void on_timer_tick(void);
+
+    void on_action_Remove_Selected_Track_triggered();
+
 private:
     void keyPressEvent(QKeyEvent* keycode);
     Ui::MainWindow *ui;
@@ -49,5 +63,13 @@ private:
     unsigned short mMinSample;
     unsigned short mMaxSample;
 
-    SyncServer mSyncServer;
+    SyncContext mSyncContext;
+    SyncClient mSyncClient;
+
+    bool mIsPlaying;
+    QTimer mTimer;
+    qint64 mStartTime;
+    double mStartTimeOffset;
+
+    static MainWindow* sInstance;
 };

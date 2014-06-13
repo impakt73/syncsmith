@@ -20,10 +20,12 @@ void TrackHeaderListView::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Delete)
     {
+        /*
         unsigned int trackIndex = selectionModel()->currentIndex().row();
         TrackListModel* modelHandle = static_cast<TrackListModel*>(model());
 
         modelHandle->removeTrack(trackIndex);
+        */
 
         event->accept();
     }

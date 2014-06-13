@@ -2,22 +2,28 @@
 
 void SyncClient::Connect(const QString &inAddress, qint16 inPort)
 {
-    // Reset any previous connections
-    mSocket.abort();
+    if(mSocket != nullptr)
+    {
+        mSocket->abort();
+        delete mSocket;
+        mSocket = nullptr;
+    }
 
-    mSocket.connectToHost(inAddress, inPort);
-    connect(&mSocket, &QTcpSocket::connected, this, &SyncClient::on_connected);
-    connect(&mSocket, &QTcpSocket::disconnected, this, &SyncClient::on_connected);
-    connect(&mSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_error(QAbstractSocket::SocketError)));
-    connect(&mSocket, &QTcpSocket::stateChanged, this, &SyncClient::on_state_changed);
-    connect(&mSocket, &QTcpSocket::readyRead, this, &SyncClient::on_data_received);
+    mSocket = new QTcpSocket();
+
+    mSocket->connectToHost(inAddress, inPort);
+    connect(mSocket, &QTcpSocket::connected, this, &SyncClient::on_connected);
+    connect(mSocket, &QTcpSocket::disconnected, this, &SyncClient::on_disconnected);
+    connect(mSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_error(QAbstractSocket::SocketError)));
+    connect(mSocket, &QTcpSocket::stateChanged, this, &SyncClient::on_state_changed);
+    connect(mSocket, &QTcpSocket::readyRead, this, &SyncClient::on_data_received);
 }
 
 void SyncClient::Disconnect()
 {
-    if(mSocket.state() == QAbstractSocket::ConnectedState)
+    if(mSocket->state() == QAbstractSocket::ConnectedState)
     {
-        mSocket.disconnectFromHost();
+        mSocket->disconnectFromHost();
     }
 }
 
@@ -65,22 +71,45 @@ void SyncClient::SendPacket(SyncPacket *inPacket)
         break;
     }
     case kSyncPacketType_AddKey:
+    {
+        SyncPacket_AddKey* addKeyPacket = static_cast<SyncPacket_AddKey*>(inPacket);
+        output << addKeyPacket->TrackName;
+        output << addKeyPacket->Position;
+        output << addKeyPacket->Data;
         break;
+    }
     case kSyncPacketType_ModifyKey:
+    {
+        SyncPacket_ModifyKey* modifyKeyPacket = static_cast<SyncPacket_ModifyKey*>(inPacket);
+        output << modifyKeyPacket->TrackName;
+        output << modifyKeyPacket->Position;
+        output << modifyKeyPacket->Data;
         break;
+    }
     case kSyncPacketType_RemoveKey:
+    {
+        SyncPacket_RemoveKey* removeKeyPacket = static_cast<SyncPacket_RemoveKey*>(inPacket);
+        output << removeKeyPacket->TrackName;
+        output << removeKeyPacket->Position;
         break;
+    }
     case kSyncPacketType_Seek:
     {
         SyncPacket_Seek* seekPacket = static_cast<SyncPacket_Seek*>(inPacket);
         output << seekPacket->Position;
         break;
     }
+    case kSyncPacketType_Response:
+    {
+        SyncPacket_Response* responsePacket = static_cast<SyncPacket_Response*>(inPacket);
+        output << responsePacket->Result;
+        break;
+    }
     }
 
     output.device()->seek(0);
     output << (quint16)(block.size() - sizeof(quint16));
-    mSocket.write(block);
+    mSocket->write(block);
 
     delete inPacket;
 }
@@ -97,7 +126,7 @@ void SyncClient::on_disconnected()
 
 void SyncClient::on_error(QAbstractSocket::SocketError inError)
 {
-    emit Error(inError, mSocket.errorString());
+    emit Error(inError, mSocket->errorString());
 }
 
 void SyncClient::on_state_changed(QAbstractSocket::SocketState inNewState)
@@ -144,12 +173,14 @@ void SyncClient::on_state_changed(QAbstractSocket::SocketState inNewState)
 
 void SyncClient::on_data_received()
 {
-    QDataStream dataStream(&mSocket);
+    qDebug() << "Got Data";
+
+    QDataStream dataStream(mSocket);
     dataStream.setVersion(QDataStream::Qt_5_3);
 
     if(mNextPacketSize == 0)
     {
-        if(mSocket.bytesAvailable() < static_cast<int>(sizeof(quint16)))
+        if(mSocket->bytesAvailable() < static_cast<int>(sizeof(quint16)))
         {
             // We still don't know how much to read
             return;
@@ -157,9 +188,11 @@ void SyncClient::on_data_received()
 
         // Read the size of the next packet
         dataStream >> mNextPacketSize;
+
+        qDebug() << "Next Packet Size " << mNextPacketSize;
     }
 
-    if(mSocket.bytesAvailable() < mNextPacketSize)
+    if(mSocket->bytesAvailable() < mNextPacketSize)
     {
         // Wait until we're able to read a full packet
         return;
@@ -216,11 +249,37 @@ void SyncClient::on_data_received()
         break;
     }
     case kSyncPacketType_AddKey:
+    {
+        SyncPacket_AddKey* packet = new SyncPacket_AddKey();
+        packet->Type = packetType;
+        dataStream >> packet->TrackName;
+        dataStream >> packet->Position;
+        dataStream >> packet->Data;
+
+        emit PacketReceived(packet);
         break;
+    }
     case kSyncPacketType_ModifyKey:
+    {
+        SyncPacket_ModifyKey* packet = new SyncPacket_ModifyKey();
+        packet->Type = packetType;
+        dataStream >> packet->TrackName;
+        dataStream >> packet->Position;
+        dataStream >> packet->Data;
+
+        emit PacketReceived(packet);
         break;
+    }
     case kSyncPacketType_RemoveKey:
+    {
+        SyncPacket_RemoveKey* packet = new SyncPacket_RemoveKey();
+        packet->Type = packetType;
+        dataStream >> packet->TrackName;
+        dataStream >> packet->Position;
+
+        emit PacketReceived(packet);
         break;
+    }
     case kSyncPacketType_Seek:
     {
         SyncPacket_Seek* packet = new SyncPacket_Seek();
@@ -242,6 +301,15 @@ void SyncClient::on_data_received()
     {
         SyncPacket_Pause* packet = new SyncPacket_Pause();
         packet->Type = packetType;
+
+        emit PacketReceived(packet);
+        break;
+    }
+    case kSyncPacketType_Response:
+    {
+        SyncPacket_Response* packet = new SyncPacket_Response();
+        packet->Type = packetType;
+        dataStream >> packet->Result;
 
         emit PacketReceived(packet);
         break;

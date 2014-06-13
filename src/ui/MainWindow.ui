@@ -182,6 +182,7 @@
      <string>&amp;Tracks</string>
     </property>
     <addaction name="action_Add_Track"/>
+    <addaction name="action_Remove_Selected_Track"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Tracks"/>
@@ -227,6 +228,11 @@
   <action name="action_Add_Track">
    <property name="text">
     <string>&amp;Add Track</string>
+   </property>
+  </action>
+  <action name="action_Remove_Selected_Track">
+   <property name="text">
+    <string>&amp;Remove Selected Track</string>
    </property>
   </action>
  </widget>

@@ -40,10 +40,12 @@ QWidget *TrackItemDelegate::createEditor(QWidget *parent, const QStyleOptionView
 {
     if(index.data(TrackListModel::TrackHandleRole).canConvert<TrackHandle>())
     {
+        const TrackListModel* model = static_cast<const TrackListModel*>(index.model());
         TrackHandle trackHandle = index.data(TrackListModel::TrackHandleRole).value<TrackHandle>();
         if(trackHandle.track()->GetType() == kTrackType_Float)
         {
-            FloatTrackEditor* editor = new FloatTrackEditor(trackHandle.track(), parent);
+            // LOLOLOLOLOLOLOL Sorry.
+            FloatTrackEditor* editor = new FloatTrackEditor(trackHandle.track(), const_cast<SyncClient*>(model->GetSyncClient()), parent);
             connect(editor, &FloatTrackEditor::editingFinished, this, &TrackItemDelegate::commitAndCloseEditor);
             return editor;
         }

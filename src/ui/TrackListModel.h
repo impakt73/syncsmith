@@ -3,6 +3,7 @@
 #include <QAbstractListModel>
 #include <core/Track.h>
 #include <core/SyncContext.h>
+#include <core/SyncClient.h>
 
 class TrackListModel : public QAbstractListModel
 {
@@ -21,9 +22,14 @@ public:
 
     void addTrack(const std::string& inTrackName, eTrackType inTrackType);
     void removeTrack(unsigned int inTrackIndex);
+
     void SetSyncContext(SyncContext* inSyncContext) { mSyncContext = inSyncContext; }
     SyncContext* GetSyncContext(void) { return mSyncContext; }
     const SyncContext* GetSyncContext(void) const { return mSyncContext; }
+
+    void SetSyncClient(SyncClient* inSyncClient) { mSyncClient = inSyncClient; }
+    SyncClient* GetSyncClient(void) { return mSyncClient; }
+    const SyncClient* GetSyncClient(void) const { return mSyncClient; }
 
     void setAudioSamples(const std::vector<unsigned short>* inAudioSamples) { mAudioSamples = inAudioSamples; }
     void setMinSample(unsigned short inSample) { mMinSample = inSample; }
@@ -41,6 +47,7 @@ public:
 
 private:
     SyncContext* mSyncContext;
+    SyncClient* mSyncClient;
     const std::vector<unsigned short>* mAudioSamples;
     unsigned short mMinSample;
     unsigned short mMaxSample;
