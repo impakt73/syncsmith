@@ -1,21 +1,57 @@
 #pragma once
 
-// How to send track data?
+#include <QtCore>
+#include <core/TrackType.h>
 
-enum eSyncCommand
+enum eSyncPacketType
 {
-    kSyncCommand_Undefined = 0,
-    kSyncCommand_Handshake,
-    kSyncCommand_AddTrack,
-    kSyncCommand_RenameTrack,
-    kSyncCommand_RemoveTrack,
-    kSyncCommand_AddKey,
-    kSyncCommand_ModifyKey,
-    kSyncCommand_RemoveKey
+    kSyncPacketType_Undefined = 0,
+    kSyncPacketType_Handshake,
+    kSyncPacketType_AddTrack,
+    kSyncPacketType_RenameTrack,
+    kSyncPacketType_RemoveTrack,
+    kSyncPacketType_AddKey,
+    kSyncPacketType_ModifyKey,
+    kSyncPacketType_RemoveKey
 };
 
-struct SyncPacket
+class SyncPacket
 {
-    eSyncCommand Command;
-    void* Data;
+public:
+    eSyncPacketType Type;
 };
+
+class SyncPacket_Handshake : public SyncPacket
+{
+public:
+    QString Message;
+};
+
+class SyncPacket_AddTrack : public SyncPacket
+{
+public:
+    QString TrackName;
+    eTrackType TrackType;
+};
+
+class SyncPacket_RenameTrack : public SyncPacket
+{
+public:
+    QString TrackName;
+    QString NewTrackName;
+};
+
+class SyncPacket_RemoveTrack : public SyncPacket
+{
+public:
+    QString TrackName;
+};
+
+class SyncPacket_AddKey : public SyncPacket
+{
+public:
+    QString TrackName;
+    eTrackType TrackType;
+};
+
+
