@@ -47,15 +47,15 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect(&mSyncServer, &SyncServer::PositionChanged, this, &MainWindow::on_position_changed);
 
     //mSyncServer.Start();
-    connect(&mSyncClient, &SyncClient::Connected, this, &MainWindow::on_client_connected);
-    connect(&mSyncClient, &SyncClient::PacketReceived, this, &MainWindow::on_packet_received);
-    mSyncClient.Connect("127.0.0.1", 8000);
+    //connect(&mSyncClient, &SyncClient::Connected, this, &MainWindow::on_client_connected);
+    //connect(&mSyncClient, &SyncClient::PacketReceived, this, &MainWindow::on_packet_received);
+    //mSyncClient.Connect("127.0.0.1", 8000);
 }
 
 MainWindow::~MainWindow()
 {
     //mSyncServer.Stop();
-    mSyncClient.Disconnect();
+    //mSyncClient.Disconnect();
 
     delete mModel;
 
@@ -64,6 +64,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::OnKeyAdded(FloatTrack *inFloatTrack, double inPosition, float inData)
 {
+    /*
     SyncPacket_AddKey* packet = new SyncPacket_AddKey();
     packet->Type = kSyncPacketType_AddKey;
     packet->TrackName = QString::fromStdString(inFloatTrack->GetName());
@@ -71,10 +72,12 @@ void MainWindow::OnKeyAdded(FloatTrack *inFloatTrack, double inPosition, float i
     packet->Data = inData;
 
     mSyncClient.SendPacket(packet);
+    */
 }
 
 void MainWindow::OnKeyModified(FloatTrack *inFloatTrack, double inPosition, float inData)
 {
+    /*
     SyncPacket_ModifyKey* packet = new SyncPacket_ModifyKey();
     packet->Type = kSyncPacketType_ModifyKey;
     packet->TrackName = QString::fromStdString(inFloatTrack->GetName());
@@ -82,16 +85,19 @@ void MainWindow::OnKeyModified(FloatTrack *inFloatTrack, double inPosition, floa
     packet->Data = inData;
 
     mSyncClient.SendPacket(packet);
+    */
 }
 
 void MainWindow::OnKeyRemoved(FloatTrack *inFloatTrack, double inPosition)
 {
+    /*
     SyncPacket_RemoveKey* packet = new SyncPacket_RemoveKey();
     packet->Type = kSyncPacketType_RemoveKey;
     packet->TrackName = QString::fromStdString(inFloatTrack->GetName());
     packet->Position = inPosition;
 
     mSyncClient.SendPacket(packet);
+    */
 }
 
 void MainWindow::on_actionE_xit_triggered()
@@ -216,6 +222,7 @@ void MainWindow::keyPressEvent(QKeyEvent* keycode)
 
         if(!mIsPlaying)
         {
+            /*
             SyncPacket_Seek* seekPacket = new SyncPacket_Seek();
             seekPacket->Type = kSyncPacketType_Seek;
             seekPacket->Position = timeline->userPlaybackPosition();
@@ -224,6 +231,7 @@ void MainWindow::keyPressEvent(QKeyEvent* keycode)
             SyncPacket_Play* packet = new SyncPacket_Play();
             packet->Type = kSyncPacketType_Play;
             mSyncClient.SendPacket(packet);
+            */
 
             mStartTimeOffset = timeline->userPlaybackPosition();
             mStartTime = QDateTime::currentMSecsSinceEpoch();
@@ -234,9 +242,11 @@ void MainWindow::keyPressEvent(QKeyEvent* keycode)
         }
         else
         {
+            /*
             SyncPacket_Pause* packet = new SyncPacket_Pause();
             packet->Type = kSyncPacketType_Pause;
             mSyncClient.SendPacket(packet);
+            */
 
             mTimer.stop();
 
@@ -258,12 +268,14 @@ void MainWindow::on_action_Add_Track_triggered()
         eTrackType trackType = addTrackDialog->trackType();
         mTrackModel.addTrack(trackName, trackType);
 
+        /*
         SyncPacket_AddTrack* packet = new SyncPacket_AddTrack();
         packet->Type = kSyncPacketType_AddTrack;
         packet->TrackName = QString::fromStdString(trackName);
         packet->TrackType = trackType;
 
         mSyncClient.SendPacket(packet);
+        */
     }
 }
 
@@ -290,11 +302,12 @@ void MainWindow::on_action_Remove_Selected_Track_triggered()
     unsigned int trackIndex = headerView->selectionModel()->currentIndex().row();
     TrackListModel* modelHandle = static_cast<TrackListModel*>(headerView->model());
 
+    /*
     SyncPacket_RemoveTrack* packet = new SyncPacket_RemoveTrack();
     packet->Type = kSyncPacketType_RemoveTrack;
     packet->TrackName = QString::fromStdString(mSyncContext.GetTrack(trackIndex)->GetName());
+    mSyncClient.SendPacket(packet);
+    */
 
     modelHandle->removeTrack(trackIndex);
-
-    mSyncClient.SendPacket(packet);
 }

@@ -80,6 +80,7 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     ui/TrackUtils.cpp
     core/Track.h
     core/TrackType.h
+    core/TrackInterpolationType.h
     core/FloatTrack.h
     core/FloatTrack.cpp
     core/TrackKey.h
@@ -89,7 +90,9 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     core/SyncServer.cpp
     core/SyncClient.h
     core/SyncClient.cpp
-    core/SyncPacket.h )
+    core/SyncPacket.h
+    core/SyncTrack.h
+    core/SyncTrack.c )
 
 ADD_SOURCE( LIB_SRC "lib" "" LIB_SRC_FILES
     SyncSmith.h

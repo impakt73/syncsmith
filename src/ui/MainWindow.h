@@ -64,7 +64,7 @@ private:
     unsigned short mMaxSample;
 
     SyncContext mSyncContext;
-    SyncClient mSyncClient;
+    //SyncClient mSyncClient;
 
     bool mIsPlaying;
     QTimer mTimer;

@@ -1,14 +1,6 @@
 #pragma once
 
-enum eTrackInterpolationType
-{
-    kTrackInterpolationType_None = 0,
-    kTrackInterpolationType_Linear,
-    kTrackInterpolationType_Smoothstep,
-    kTrackInterpolationType_Cosine,
-
-    kTrackInterpolationType_Max
-};
+#include <core/TrackInterpolationType.h>
 
 template <class T>
 class TrackKey

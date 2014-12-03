@@ -6,6 +6,7 @@ enum eTrackType
     kTrackType_Double,
     kTrackType_Integer,
     kTrackType_Boolean,
+    kTrackType_String,
 
     kTrackType_Count
 };
