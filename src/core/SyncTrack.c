@@ -1,13 +1,112 @@
 #include <core/SyncTrack.h>
 #include <assert.h>
 #include <math.h>
+#include <string.h>
+#include <stdlib.h>
 
 const float kDefaultFloatValue = 0.0f;
 const int kDefaultIntegerValue = 0;
 const bool kDefaultBooleanValue = false;
 const char* kDefaultStringValue = "Default";
 
-unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int inPosition, struct SyncTrackKey outTrackKeys[2]);
+unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int inPosition, struct SyncTrackKey outTrackKeys[2], unsigned int outTrackKeyIndices[2]);
+void SyncTrackResizeKeys(struct SyncTrack* inSyncTrack, unsigned int inNewNumOfKeys);
+void SyncTrackAppendKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey);
+void SyncTrackInsertKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey, unsigned int inIndex);
+
+void SyncTrackResizeKeys(struct SyncTrack* inSyncTrack, unsigned int inNewNumOfKeys)
+{
+    if(inNewNumOfKeys == 0)
+    {
+        // We're removing all keys so destroy the array
+        inSyncTrack->NumOfKeys = 0;
+        free(inSyncTrack->Keys);
+    }
+    else
+    {
+        inSyncTrack->NumOfKeys = inNewNumOfKeys;
+
+        // We're resizing to a non-zero amount
+        if(inSyncTrack->NumOfKeys > 0)
+        {
+            // We had keys and an array previously
+            inSyncTrack->Keys = realloc(inSyncTrack->Keys, sizeof(struct SyncTrackKey) * inNewNumOfKeys);
+        }
+        else
+        {
+            // We have no keys so create a new array
+            inSyncTrack->Keys = malloc(sizeof(struct SyncTrackKey) * inNewNumOfKeys);
+        }
+    }
+}
+
+void SyncTrackAppendKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey)
+{
+    // Make space for the new key and copy it in
+    SyncTrackResizeKeys(inSyncTrack, inSyncTrack->NumOfKeys + 1);
+    inSyncTrack->Keys[inSyncTrack->NumOfKeys - 1] = *inKey;
+}
+
+void SyncTrackInsertKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey, unsigned int inIndex)
+{
+    // Add space for another key to the end of the array
+    SyncTrackResizeKeys(inSyncTrack, inSyncTrack->NumOfKeys + 1);
+
+    // Move all keys after the index over one space
+    size_t indexOffset = sizeof(struct SyncTrackKey) * inIndex;
+    memmove(inSyncTrack->Keys + indexOffset, inSyncTrack->Keys + indexOffset + sizeof(struct SyncTrackKey), sizeof(struct SyncTrackKey) * inSyncTrack->NumOfKeys - indexOffset);
+
+    // Copy the new key in
+    inSyncTrack->Keys[inIndex] = *inKey;
+}
+
+void SyncTrackUpdateKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey)
+{
+    struct SyncTrackKey trackKeys[2];
+    unsigned int trackKeyIndices[2];
+    unsigned int keyCount = SyncTrackFindKeys(inSyncTrack, inKey->Position, trackKeys, trackKeyIndices);
+    switch(keyCount)
+    {
+        case 0:
+        {
+            // No keys in track so append the new key to the end
+            SyncTrackAppendKey(inSyncTrack, inKey);
+            break;
+        }
+        case 1:
+        {
+            // Key already exists so just copy the new one over it
+            trackKeys[0] = *inKey;
+            break;
+        }
+        case 2:
+        {
+            // Key doesn't exist yet but it needs to be inserted between existing keys
+            SyncTrackInsertKey(inSyncTrack, inKey, trackKeyIndices[0] + 1);
+            break;
+        }
+    }
+}
+
+void SyncTrackRemoveKey(struct SyncTrack* inSyncTrack, unsigned int inPosition)
+{
+    assert(inSyncTrack->NumOfKeys > 0);
+
+    struct SyncTrackKey trackKeys[2];
+    unsigned int trackKeyIndices[2];
+    unsigned int keyCount = SyncTrackFindKeys(inSyncTrack, inPosition, trackKeys, trackKeyIndices);
+    assert(keyCount == 1);
+
+    // If we have more than one key currently, we need to move the array down before resizing
+    if(inSyncTrack->NumOfKeys > 1)
+    {
+        // Move all keys after the index over one space
+        size_t indexOffset = sizeof(struct SyncTrackKey) * trackKeyIndices[0];
+        memmove(inSyncTrack->Keys + indexOffset - 1, inSyncTrack->Keys + indexOffset, sizeof(struct SyncTrackKey) * (inSyncTrack->NumOfKeys - 1));
+    }
+
+    SyncTrackResizeKeys(inSyncTrack, inSyncTrack->NumOfKeys - 1);
+}
 
 float InterpolateFloatKeys(const struct SyncTrackKey* inKeyA, const struct SyncTrackKey* inKeyB, unsigned int inPosition)
 {
@@ -57,7 +156,8 @@ float SyncTrackGetFloat(const struct SyncTrack* inSyncTrack, unsigned int inPosi
     assert(inSyncTrack->Type == kTrackType_Float);
 
     struct SyncTrackKey trackKeys[2];
-    unsigned int keyCount = SyncTrackFindKeys(inSyncTrack, inPosition, trackKeys);
+    unsigned int trackKeyIndices[2];
+    unsigned int keyCount = SyncTrackFindKeys(inSyncTrack, inPosition, trackKeys, trackKeyIndices);
     switch(keyCount)
     {
         case 0:
@@ -103,7 +203,7 @@ const char* SyncTrackGetString(const struct SyncTrack* inSyncTrack, unsigned int
     return kDefaultStringValue;
 }
 
-unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int inPosition, struct SyncTrackKey outTrackKeys[2])
+unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int inPosition, struct SyncTrackKey outTrackKeys[2], unsigned int outTrackKeyIndices[2])
 {
     if(inSyncTrack->NumOfKeys == 0)
     {
@@ -112,6 +212,7 @@ unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int
     else if(inSyncTrack->NumOfKeys == 1)
     {
         outTrackKeys[0] = inSyncTrack->Keys[0];
+        outTrackKeyIndices[0] = 0;
         return 1;
     }
     else
@@ -146,6 +247,7 @@ unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int
         {
             // Found a direct match, simply return the key
             outTrackKeys[0] = inSyncTrack->Keys[keyIndex];
+            outTrackKeyIndices[0] = keyIndex;
             return 1;
         }
         else
@@ -162,12 +264,15 @@ unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int
 
                 outTrackKeys[0] = inSyncTrack->Keys[minKeyIndex];
                 outTrackKeys[1] = inSyncTrack->Keys[maxKeyIndex];
+                outTrackKeyIndices[0] = minKeyIndex;
+                outTrackKeyIndices[1] = maxKeyIndex;
                 return 2;
             }
             else
             {
                 // Our secondary key falls outside of the array, return the first key
                 outTrackKeys[0] = inSyncTrack->Keys[keyIndex];
+                outTrackKeyIndices[0] = keyIndex;
                 return 1;
             }
         }
