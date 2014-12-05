@@ -27,4 +27,3 @@ void SyncTrackRemoveKey(struct SyncTrack* inSyncTrack, unsigned int inPosition);
 float SyncTrackGetFloat(const struct SyncTrack* inSyncTrack, unsigned int inPosition);
 int SyncTrackGetInteger(const struct SyncTrack* inSyncTrack, unsigned int inPosition);
 bool SyncTrackGetBoolean(const struct SyncTrack* inSyncTrack, unsigned int inPosition);
-const char* SyncTrackGetString(const struct SyncTrack* inSyncTrack, unsigned int inPosition);

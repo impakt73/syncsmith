@@ -12,6 +12,5 @@ struct SyncTrackKey
         float FloatData;
         int IntegerData;
         bool BooleanData;
-        const char* StringData;
     };
 };
