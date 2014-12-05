@@ -141,6 +141,29 @@ void SyncTrackInsertKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+// Public Track Functions
+////////////////////////////////////////////////////////////////////////////////////////
+
+struct SyncTrack* SyncTrackCreateTrack(const char* inName, enum eTrackType inType)
+{
+    struct SyncTrack* syncTrack = (struct SyncTrack*)malloc(sizeof(struct SyncTrack));
+    char* nameBuffer = (char*)malloc(strlen(inName) + 1);
+    strcpy(nameBuffer, inName);
+    syncTrack->Name = nameBuffer;
+    syncTrack->Type = inType;
+
+    return syncTrack;
+}
+
+void SyncTrackDestroyTrack(struct SyncTrack** inSyncTrack)
+{
+    struct SyncTrack* syncTrack = *inSyncTrack;
+    free((void*)syncTrack->Name);
+    free(syncTrack);
+    *inSyncTrack = NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 // Public Key Functions
 ////////////////////////////////////////////////////////////////////////////////////////
 
