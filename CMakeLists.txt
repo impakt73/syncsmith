@@ -91,6 +91,7 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     core/SyncClient.h
     core/SyncClient.cpp
     core/SyncPacket.h
+    core/SyncTrackKey.h
     core/SyncTrack.h
     core/SyncTrack.c )
 

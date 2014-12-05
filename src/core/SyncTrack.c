@@ -9,6 +9,11 @@ const int kDefaultIntegerValue = 0;
 const bool kDefaultBooleanValue = false;
 const char* kDefaultStringValue = "Default";
 
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Key Functions
+////////////////////////////////////////////////////////////////////////////////////////
+
 unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int inPosition, struct SyncTrackKey outTrackKeys[2], unsigned int outTrackKeyIndices[2]);
 void SyncTrackResizeKeys(struct SyncTrack* inSyncTrack, unsigned int inNewNumOfKeys);
 void SyncTrackAppendKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey);
@@ -100,9 +105,22 @@ void SyncTrackRemoveKey(struct SyncTrack* inSyncTrack, unsigned int inPosition)
     // If we have more than one key currently, we need to move the array down before resizing
     if(inSyncTrack->NumOfKeys > 1)
     {
-        // Move all keys after the index over one space
-        size_t indexOffset = sizeof(struct SyncTrackKey) * trackKeyIndices[0];
-        memmove(inSyncTrack->Keys + indexOffset - 1, inSyncTrack->Keys + indexOffset, sizeof(struct SyncTrackKey) * (inSyncTrack->NumOfKeys - 1));
+        if(trackKeyIndices[0] == 0)
+        {
+            // This is the first key in the array
+            // Just move the remaining part of the array ontop of this one
+            memmove(inSyncTrack->Keys, inSyncTrack->Keys + sizeof(struct SyncTrackKey), (inSyncTrack->NumOfKeys - 1) * sizeof(struct SyncTrackKey));
+        }
+        else if(trackKeyIndices[0] != inSyncTrack->NumOfKeys - 1)
+        {
+            // This key is between two other keys
+            // Move all keys after the index over one space to the left
+            size_t keyOffset = sizeof(struct SyncTrackKey) * trackKeyIndices[0];
+            size_t arraySize = sizeof(struct SyncTrackKey) * (inSyncTrack->NumOfKeys - (trackKeyIndices[0] + 1));
+            memmove(inSyncTrack->Keys + keyOffset, inSyncTrack->Keys + keyOffset + sizeof(struct SyncTrackKey), arraySize);
+        }
+
+        // If it's the last key in the array, we really don't have to do anything special
     }
 
     SyncTrackResizeKeys(inSyncTrack, inSyncTrack->NumOfKeys - 1);
