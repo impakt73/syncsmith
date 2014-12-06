@@ -1,8 +1,8 @@
 #include <SyncSmith.h>
 #include <core/SyncServer.h>
-#include <QApplication>
+#include <QCoreApplication>
 
-static QApplication* sApplication = nullptr;
+static QCoreApplication* sApplication = nullptr;
 static SyncServer* sSyncServer = nullptr;
 static int sArgc;
 static char** sArgv;
@@ -12,7 +12,7 @@ void ssCreate(int argc, char** argv)
     sArgc = argc;
     sArgv = argv;
 
-    sApplication = new QApplication(sArgc, sArgv);
+    sApplication = new QCoreApplication(sArgc, sArgv);
     sSyncServer = new SyncServer();
 }
 

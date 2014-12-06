@@ -23,7 +23,7 @@ void SyncTrackDestroyTrack(struct SyncTrack** inSyncTrack);
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // Update an existing key or create a new one if it doesn't exist
-void SyncTrackUpdateKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey);
+void SyncTrackUpdateKey(struct SyncTrack* inSyncTrack, unsigned int inPosition, enum eTrackInterpolationType inInterpolationType, const struct SyncTrackKeyValue* inValue);
 
 // Remove an existing key
 void SyncTrackRemoveKey(struct SyncTrack* inSyncTrack, unsigned int inPosition);

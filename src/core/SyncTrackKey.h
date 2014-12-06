@@ -3,14 +3,19 @@
 #include <stdbool.h>
 #include <core/TrackInterpolationType.h>
 
-struct SyncTrackKey
+struct SyncTrackKeyValue
 {
-    unsigned int Position;
-    enum eTrackInterpolationType InterpolationType;
     union
     {
         float FloatData;
         int IntegerData;
         bool BooleanData;
     };
+};
+
+struct SyncTrackKey
+{
+    unsigned int Position;
+    enum eTrackInterpolationType InterpolationType;
+    struct SyncTrackKeyValue Value;
 };

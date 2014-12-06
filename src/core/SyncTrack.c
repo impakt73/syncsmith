@@ -68,7 +68,7 @@ unsigned int SyncTrackFindKeys(const struct SyncTrack* inSyncTrack, unsigned int
         else
         {
             // Direct match not found, figure out what to do based on the surrounding keys
-            int direction = (key->Position - inPosition) > 0 ? 1 : -1; // We know this will never be zero since the case above wasn't taken
+            int direction = (key->Position < inPosition) ? 1 : -1; // We know these will never be equal since the case above wasn't taken
             int secondKeyIndex = keyIndex + direction;
             if(secondKeyIndex >= 0 && secondKeyIndex < inSyncTrack->NumOfKeys)
             {
@@ -147,6 +147,7 @@ void SyncTrackInsertKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey
 struct SyncTrack* SyncTrackCreateTrack(const char* inName, enum eTrackType inType)
 {
     struct SyncTrack* syncTrack = (struct SyncTrack*)malloc(sizeof(struct SyncTrack));
+    memset(syncTrack, 0, sizeof(struct SyncTrack));
     char* nameBuffer = (char*)malloc(strlen(inName) + 1);
     strcpy(nameBuffer, inName);
     syncTrack->Name = nameBuffer;
@@ -159,6 +160,7 @@ void SyncTrackDestroyTrack(struct SyncTrack** inSyncTrack)
 {
     struct SyncTrack* syncTrack = *inSyncTrack;
     free((void*)syncTrack->Name);
+    free(syncTrack->Keys);
     free(syncTrack);
     *inSyncTrack = NULL;
 }
@@ -167,29 +169,74 @@ void SyncTrackDestroyTrack(struct SyncTrack** inSyncTrack)
 // Public Key Functions
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void SyncTrackUpdateKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey)
+void SyncTrackUpdateKey(struct SyncTrack* inSyncTrack, unsigned int inPosition, enum eTrackInterpolationType inInterpolationType, const struct SyncTrackKeyValue* inValue)
 {
+    // Create a new key with the updated information
+    struct SyncTrackKey newKey;
+    newKey.Position = inPosition;
+    newKey.InterpolationType = inInterpolationType;
+    newKey.Value = *inValue;
+
     struct SyncTrackKey trackKeys[2];
     unsigned int trackKeyIndices[2];
-    unsigned int keyCount = SyncTrackFindKeys(inSyncTrack, inKey->Position, trackKeys, trackKeyIndices);
+    unsigned int keyCount = SyncTrackFindKeys(inSyncTrack, inPosition, trackKeys, trackKeyIndices);
+
     switch(keyCount)
     {
         case 0:
         {
             // No keys in track so append the new key to the end
-            SyncTrackAppendKey(inSyncTrack, inKey);
+            SyncTrackAppendKey(inSyncTrack, &newKey);
             break;
         }
         case 1:
         {
-            // Key already exists so just copy the new one over it
-            trackKeys[0] = *inKey;
+            // We're either on an edge of the array or we've found an existing key
+            unsigned int keyIndex = trackKeyIndices[0];
+            if(inSyncTrack->Keys[keyIndex].Position == inPosition)
+            {
+                // We've found an exact match
+                // Copy the new key values over the old ones
+                inSyncTrack->Keys[keyIndex] = newKey;
+            }
+            else
+            {
+                if(inSyncTrack->NumOfKeys > 1)
+                {
+                    // We're on an edge of the array since we only got one key back and we have multiple keys
+                    if(keyIndex == 0)
+                    {
+                        // We're at the beginning so insert
+                        SyncTrackInsertKey(inSyncTrack, &newKey, keyIndex + 1);
+                    }
+                    else
+                    {
+                        // We're at the end so append
+                        SyncTrackAppendKey(inSyncTrack, &newKey);
+                    }
+                }
+                else
+                {
+                    // We only have one key in the array so figure out how to add the new one
+                    if(inSyncTrack->Keys[keyIndex].Position > inPosition)
+                    {
+                        // Our key is smaller so insert
+                        SyncTrackInsertKey(inSyncTrack, &newKey, keyIndex);
+                    }
+                    else
+                    {
+                        // Our key is larger so append
+                        SyncTrackAppendKey(inSyncTrack, &newKey);
+                    }
+                }
+            }
+
             break;
         }
         case 2:
         {
             // Key doesn't exist yet but it needs to be inserted between existing keys
-            SyncTrackInsertKey(inSyncTrack, inKey, trackKeyIndices[0] + 1);
+            SyncTrackInsertKey(inSyncTrack, &newKey, trackKeyIndices[0] + 1);
             break;
         }
     }
@@ -238,34 +285,34 @@ float InterpolateFloatKeys(const struct SyncTrackKey* inKeyA, const struct SyncT
     {
         case kTrackInterpolationType_None:
         {
-            return inKeyA->FloatData;
+            return inKeyA->Value.FloatData;
         }
         case kTrackInterpolationType_Linear:
         {
             unsigned int positionDifference = inKeyB->Position - inKeyA->Position;
             float interpolationValue = (float)(inPosition - inKeyA->Position) / (float)positionDifference;
-            return (1.0f - interpolationValue) * inKeyA->FloatData + interpolationValue * inKeyB->FloatData;
+            return (1.0f - interpolationValue) * inKeyA->Value.FloatData + interpolationValue * inKeyB->Value.FloatData;
         }
         case kTrackInterpolationType_Smoothstep:
         {
             unsigned int positionDifference = inKeyB->Position - inKeyA->Position;
             float interpolationValue = (float)(inPosition - inKeyA->Position) / (float)positionDifference;
             interpolationValue = interpolationValue * interpolationValue * (3.0 - 2.0 * interpolationValue);
-            return (1.0f - interpolationValue) * inKeyA->FloatData + interpolationValue * inKeyB->FloatData;
+            return (1.0f - interpolationValue) * inKeyA->Value.FloatData + interpolationValue * inKeyB->Value.FloatData;
         }
         case kTrackInterpolationType_Ramp:
         {
             unsigned int positionDifference = inKeyB->Position - inKeyA->Position;
             float interpolationValue = (float)(inPosition - inKeyA->Position) / (float)positionDifference;
             interpolationValue = interpolationValue * interpolationValue;
-            return (1.0f - interpolationValue) * inKeyA->FloatData + interpolationValue * inKeyB->FloatData;
+            return (1.0f - interpolationValue) * inKeyA->Value.FloatData + interpolationValue * inKeyB->Value.FloatData;
         }
         case kTrackInterpolationType_Cosine:
         {
             unsigned int positionDifference = inKeyB->Position - inKeyA->Position;
             float interpolationValue = (float)(inPosition - inKeyA->Position) / (float)positionDifference;
             interpolationValue = (1.0f - (float)cos((double)(interpolationValue * 3.14159265f))) * 0.5f;
-            return (1.0f - interpolationValue) * inKeyA->FloatData + interpolationValue * inKeyB->FloatData;
+            return (1.0f - interpolationValue) * inKeyA->Value.FloatData + interpolationValue * inKeyB->Value.FloatData;
         }
         default:
         {
@@ -292,7 +339,7 @@ float SyncTrackGetFloat(const struct SyncTrack* inSyncTrack, unsigned int inPosi
         case 1:
         {
             // Single key value
-            return trackKeys[0].FloatData;
+            return trackKeys[0].Value.FloatData;
         }
         case 2:
         {
