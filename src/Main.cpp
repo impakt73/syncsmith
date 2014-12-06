@@ -26,13 +26,20 @@ int main(int argc, char** argv)
 
     SyncTrack* syncTrack = SyncTrackCreateTrack("CatTrack", kTrackType_Float);
 
-    for(unsigned int i = 0; i < 5; ++i)
+    for(unsigned int i = 1; i < 5; ++i)
     {
         SyncTrackKeyValue floatVal;
         floatVal.FloatData = static_cast<float>(i * 10.0f);
         SyncTrackUpdateKey(syncTrack, i * 2, kTrackInterpolationType_Linear, &floatVal);
         printf("Key At %dms: %.2f\n", i * 2, floatVal.FloatData);
     }
+
+    SyncTrackKeyValue floatVal;
+    floatVal.FloatData = static_cast<float>(0.0f);
+    SyncTrackUpdateKey(syncTrack, 0, kTrackInterpolationType_Linear, &floatVal);
+
+    SyncTrackRemoveKey(syncTrack, 0);
+
     for(unsigned int i = 0; i < 10; ++i)
     {
         float value = SyncTrackGetFloat(syncTrack, i);
