@@ -98,31 +98,6 @@ void SyncTrackResizeKeys(struct SyncTrack* inSyncTrack, unsigned int inNewNumOfK
 {
     inSyncTrack->Keys = realloc(inSyncTrack->Keys, sizeof(struct SyncTrackKey) * inNewNumOfKeys);
     inSyncTrack->NumOfKeys = inNewNumOfKeys;
-
-    /*
-    if(inNewNumOfKeys == 0)
-    {
-        // We're removing all keys so destroy the array
-        inSyncTrack->NumOfKeys = 0;
-        free(inSyncTrack->Keys);
-    }
-    else
-    {
-        inSyncTrack->NumOfKeys = inNewNumOfKeys;
-
-        // We're resizing to a non-zero amount
-        if(inSyncTrack->NumOfKeys > 0)
-        {
-            // We had keys and an array previously
-            inSyncTrack->Keys = realloc(inSyncTrack->Keys, sizeof(struct SyncTrackKey) * inNewNumOfKeys);
-        }
-        else
-        {
-            // We have no keys so create a new array
-            inSyncTrack->Keys = malloc(sizeof(struct SyncTrackKey) * inNewNumOfKeys);
-        }
-    }
-    */
 }
 
 void SyncTrackAppendKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey* inKey)
@@ -142,6 +117,7 @@ void SyncTrackInsertKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey
         SyncTrackResizeKeys(inSyncTrack, inSyncTrack->NumOfKeys + 1);
 
         // Move all keys after the index over one space
+        // @NOTE: For some reason, memmove doesn't work here?
         for(int keyIndex = inSyncTrack->NumOfKeys - 1; keyIndex > 0; --keyIndex)
         {
             inSyncTrack->Keys[keyIndex] = inSyncTrack->Keys[keyIndex - 1];
