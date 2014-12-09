@@ -137,7 +137,11 @@ void SyncTrackInsertKey(struct SyncTrack* inSyncTrack, const struct SyncTrackKey
         void* keyLocation = inSyncTrack->Keys + (inIndex * sizeof(struct SyncTrackKey));
 
         // Move all keys after the index over one space
-        memmove(keyLocation + sizeof(struct SyncTrackKey), keyLocation, sizeof(struct SyncTrackKey) * ((inSyncTrack->NumOfKeys - 1) - inIndex));
+        //memmove(keyLocation + sizeof(struct SyncTrackKey), keyLocation, sizeof(struct SyncTrackKey) * ((inSyncTrack->NumOfKeys - 1) - inIndex));
+        for(int keyIndex = inSyncTrack->NumOfKeys - 1; keyIndex > inIndex; --keyIndex)
+        {
+            inSyncTrack->Keys[keyIndex] = inSyncTrack->Keys[keyIndex - 1];
+        }
 
         // Copy the new key in
         inSyncTrack->Keys[inIndex] = *inKey;
@@ -273,7 +277,11 @@ void SyncTrackRemoveKey(struct SyncTrack* inSyncTrack, unsigned int inPosition)
             // Move all keys after the index over one space to the left
             size_t keyOffset = sizeof(struct SyncTrackKey) * trackKeyIndices[0];
             size_t arraySize = sizeof(struct SyncTrackKey) * (inSyncTrack->NumOfKeys - (trackKeyIndices[0] + 1));
-            memmove(inSyncTrack->Keys + keyOffset, inSyncTrack->Keys + keyOffset + sizeof(struct SyncTrackKey), arraySize);
+            //memmove(inSyncTrack->Keys + keyOffset, inSyncTrack->Keys + keyOffset + sizeof(struct SyncTrackKey), arraySize);
+            for(int keyIndex = 0; keyIndex < inSyncTrack->NumOfKeys - 1; ++keyIndex)
+            {
+                inSyncTrack->Keys[keyIndex] = inSyncTrack->Keys[keyIndex + 1];
+            }
         }
 
         // If it's the last key in the array, we really don't have to do anything special

@@ -9,6 +9,7 @@ extern "C"
 #include <core/SyncTrack.h>
 }
 
+#include <core/TerminalSyncClient.h>
 #include <stdio.h>
 
 int main(int argc, char** argv)
@@ -30,8 +31,8 @@ int main(int argc, char** argv)
     {
         SyncTrackKeyValue floatVal;
         floatVal.FloatData = static_cast<float>(i * 10.0f);
-        SyncTrackUpdateKey(syncTrack, i * 2, kTrackInterpolationType_Linear, &floatVal);
-        printf("Key At %dms: %.2f\n", i * 2, floatVal.FloatData);
+        SyncTrackUpdateKey(syncTrack, i * 5, kTrackInterpolationType_Linear, &floatVal);
+        printf("Key At %dms: %.2f\n", i * 5, floatVal.FloatData);
     }
 
     SyncTrackKeyValue floatVal;
@@ -46,6 +47,11 @@ int main(int argc, char** argv)
         printf("Value At %dms: %.2f\n", i, value);
     }
     SyncTrackDestroyTrack(&syncTrack);
+
+    TerminalSyncClient client;
+    client.Initialize();
+    client.Run();
+    client.Shutdown();
 
     return 0;
 }

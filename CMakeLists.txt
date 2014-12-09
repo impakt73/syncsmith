@@ -93,7 +93,9 @@ ADD_SOURCE( MAIN_SRC "src" "" SRC_FILES
     core/SyncPacket.h
     core/SyncTrackKey.h
     core/SyncTrack.h
-    core/SyncTrack.c )
+    core/SyncTrack.c
+    core/TerminalSyncClient.h
+    core/TerminalSyncClient.cpp )
 
 ADD_SOURCE( LIB_SRC "lib" "" LIB_SRC_FILES
     SyncSmith.h
